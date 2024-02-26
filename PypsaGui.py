@@ -1,4 +1,4 @@
-__guiversion__ = "0.0.1"
+__guiversion__ = "0.0.2"
 
 
 import logging

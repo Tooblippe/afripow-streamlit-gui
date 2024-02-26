@@ -118,7 +118,7 @@ def select_folder():
 
 def refresh_button(sidebar=True):
     if sidebar:
-        if st.sidebar.button("Refresh", type="primary", use_container_width=True):
+        if st.sidebar.button("Refresh", type="secondary", use_container_width=True):
             st.experimental_rerun()
     else:
         if st.button("Refresh"):

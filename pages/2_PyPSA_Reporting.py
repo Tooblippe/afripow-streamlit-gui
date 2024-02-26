@@ -1,15 +1,14 @@
 import os
 import sys
-from contextlib import contextmanager
-from io import StringIO
 from pathlib import Path
 
+sys.path.insert(0, 'C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src')
 import pandas as pd
 import streamlit as st
 from PIL import Image
 
-sys.path.insert(0, 'C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src')
 
+from afripow_pypsa.helpers.direcory_cases import find_int_named_subdirs
 
 from afripow_pypsa.toolbox.toolbox import (
     generate_case_report,
@@ -20,11 +19,8 @@ from streamlit_extras.stylable_container import stylable_container
 
 
 from pages.helpers.helpers import (open_location, package_version, select_folder, refresh_button, page_setup,
-                                   list_directories_with_paths, find_all_images, find_int_named_subdirs,
+                                   list_directories_with_paths, find_all_images,
                                    apply_cell_colors, )
-
-# from pages.helpers.terminal_to_st import terminal_stdout_to_st_element
-
 
 
 

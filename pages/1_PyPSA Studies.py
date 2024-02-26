@@ -14,6 +14,8 @@ from afripow_pypsa.toolbox.toolbox import (
     set_cplex_licence_key,
 )
 
+from afripow_pypsa.helpers.direcory_cases import find_int_named_subdirs
+
 # from ultraimport import ultraimport
 #
 # helpers_dir = "__dir__/helpers/helpers.py"
@@ -33,8 +35,6 @@ from pages.helpers.helpers import (
     refresh_button,
     page_setup,
     list_directories_with_paths,
-    find_all_images,
-    find_int_named_subdirs,
 )
 
 

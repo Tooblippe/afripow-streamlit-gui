@@ -67,27 +67,27 @@ def find_all_images(directory: Path) -> dict:
     return images_dict
 
 
-def find_int_named_subdirs(path):
-    """
-    Finds all subdirectories within the given path whose names can be cast to an integer.
-
-    :param path: The path to search within.
-    :return: A list of subdirectory names (as integers) that can be cast to an integer.
-    """
-    int_named_subdirs = []
-
-    # Walk through the directory structure starting at the given path
-    for root, dirs, _ in os.walk(path):
-        # Check each directory in dirs for subdirectories that can be cast to an integer
-        for dir_name in dirs:
-            if (
-                dir_name.isdigit()
-            ):  # Check if the directory name can be cast to an integer
-                full_dir_path = os.path.join(root, dir_name)
-                # Add the directory name (as integer) to the list
-                int_named_subdirs.append(int(dir_name))
-
-    return int_named_subdirs
+# def find_int_named_subdirs(path):
+#     """
+#     Finds all subdirectories within the given path whose names can be cast to an integer.
+#
+#     :param path: The path to search within.
+#     :return: A list of subdirectory names (as integers) that can be cast to an integer.
+#     """
+#     int_named_subdirs = []
+#
+#     # Walk through the directory structure starting at the given path
+#     for root, dirs, _ in os.walk(path):
+#         # Check each directory in dirs for subdirectories that can be cast to an integer
+#         for dir_name in dirs:
+#             if (
+#                 dir_name.isdigit()
+#             ):  # Check if the directory name can be cast to an integer
+#                 full_dir_path = os.path.join(root, dir_name)
+#                 # Add the directory name (as integer) to the list
+#                 int_named_subdirs.append(int(dir_name))
+#
+#     return int_named_subdirs
 
 
 def get_package_version():

@@ -223,26 +223,26 @@ if excel_file:
         run_links = st.sidebar.button(":white[Generate Link Profiles Plots]", type="primary", use_container_width=True)
         run_all = st.sidebar.button(":white[Generate All Plots]", type="primary", use_container_width=True)
 
-
         if run_capacity_energy:
-            generate_case_report(
-                    start_dir, excel_file, Path(base_dir) / Path(start_dir), study_type, reports_to_run=["CAPACITY_ENERGY"]
-                )
-            st.toast(":green[Reporting done]")
+            with st.spinner("Report is running. Output in terminal window."):
+                generate_case_report(
+                        start_dir, excel_file, Path(base_dir) / Path(start_dir), study_type, reports_to_run=["CAPACITY_ENERGY"]
+                    )
+                st.toast(":green[Reporting done]")
 
         if run_links:
-            generate_case_report(start_dir, excel_file, Path(base_dir) / Path(start_dir), study_type,
-                    reports_to_run=["LINK_PROFILES"])
-            st.toast(":green[Reporting done]")
+            with st.spinner("Report is running. Output in terminal window."):
+                generate_case_report(start_dir, excel_file, Path(base_dir) / Path(start_dir), study_type,
+                        reports_to_run=["LINK_PROFILES"])
+                st.toast(":green[Reporting done]")
 
         if run_all:
-            generate_case_report(start_dir, excel_file, Path(base_dir) / Path(start_dir), study_type,
-                    reports_to_run=["ALL"])
-            st.toast(":green[Reporting done]")
+            with st.spinner("Report is running. Output in terminal window."):
+                generate_case_report(start_dir, excel_file, Path(base_dir) / Path(start_dir), study_type,
+                        reports_to_run=["ALL"])
+                st.toast(":green[Reporting done]")
 
 
-            if st.button("Done"):
-                st.experimental_rerun()
 
 
 

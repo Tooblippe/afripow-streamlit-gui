@@ -1,11 +1,15 @@
+__guiversion__ = "0.0.1"
+
+
 import logging
 import os
 import sys
-
+sys.path.insert(0, 'C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src')
 import streamlit as st
 
 # import hack
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 
 from pages.helpers.helpers import package_version, get_package_version
 
@@ -45,3 +49,4 @@ with tab2:
     st.markdown("""Docs - Reporting""")
 
 package_version()
+st.sidebar.write(f":green[GUI version: {__guiversion__}]")

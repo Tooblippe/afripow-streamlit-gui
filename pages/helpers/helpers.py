@@ -123,3 +123,7 @@ def refresh_button(sidebar=True):
     else:
         if st.button("Refresh"):
             st.experimental_rerun()
+
+
+def apply_cell_colors(s):
+    return ['background-color: %s' % color for color in s]

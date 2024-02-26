@@ -1,39 +1,32 @@
 import os
+import sys
+from contextlib import contextmanager
+from io import StringIO
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 from PIL import Image
 
+sys.path.insert(0, 'C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src')
+
+
 from afripow_pypsa.toolbox.toolbox import (
     generate_case_report,
     silence_warnings,
     set_cplex_licence_key,
 )
-
-#
-# from ultraimport import ultraimport
-#
-# helpers_dir = "__dir__/helpers/helpers.py"
-# find_int_named_subdirs = ultraimport(helpers_dir, "find_int_named_subdirs")
-# open_location = ultraimport(helpers_dir, "open_location")
-# package_version = ultraimport(helpers_dir, "package_version")
-# select_folder = ultraimport(helpers_dir, "select_folder")
-# refresh_button = ultraimport(helpers_dir, "refresh_button")
-# page_setup = ultraimport(helpers_dir, "page_setup")
-# list_directories_with_paths = ultraimport(helpers_dir, "list_directories_with_paths")
+from streamlit_extras.stylable_container import stylable_container
 
 
-from pages.helpers.helpers import (
-    open_location,
-    package_version,
-    select_folder,
-    refresh_button,
-    page_setup,
-    list_directories_with_paths,
-    find_all_images,
-    find_int_named_subdirs,
-)
+from pages.helpers.helpers import (open_location, package_version, select_folder, refresh_button, page_setup,
+                                   list_directories_with_paths, find_all_images, find_int_named_subdirs,
+                                   apply_cell_colors, )
+
+# from pages.helpers.terminal_to_st import terminal_stdout_to_st_element
+
+
+
 
 
 page_setup(page_name="PyPSA Reporting")
@@ -106,9 +99,13 @@ def excel_tabs(results_folder: Path):
         ]
     )
     with tab2:
-        st.data_editor(load_file(excel_file, "link_to_plant"))
+        df = load_file(excel_file, "link_to_plant")
+        styled_df = df.style.apply(apply_cell_colors, subset=['plot_color'], axis=1)
+        st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
     with tab3:
-        st.data_editor(load_file(excel_file, "plant_group"))
+        df = load_file(excel_file, "plant_group")
+        styled_df = df.style.apply(apply_cell_colors, subset=['plot_color'], axis=1)
+        st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
     with tab1:
         data = load_file(excel_file, "study_years")
         data.set_index("years", inplace=True)
@@ -213,17 +210,37 @@ if excel_file:
         excel_tabs(results_folder)
 
     refresh_button()
-    run_button = st.sidebar.button(
-        ":white[Run Report]", type="primary", use_container_width=True
-    )
-    if run_button:
-        with st.spinner("Report is running. Output in terminal window."):
-            st.toast(":green[Reporting started...]")
+    with stylable_container(key="terminal",
+                            css_styles="""
+                {
+                  background-color: black;
+                  color: #33FF33; /* Classic green terminal color */
+                  font-family: 'Courier New', Courier, monospace; /* Monospaced font for that classic terminal look */
+                  padding: 20px;
+                  max-height: 800px; /* Maximum height */
+                  overflow-y: auto; /* Enable vertical scrolling if the co
+                }
+                """, ):
+        run_button = st.sidebar.button(
+            ":white[Run Report]", type="primary", use_container_width=True
+        )
+        if run_button:
+                # with terminal_stdout_to_st_element("markdown"):
+                #     generate_case_report(
+                #         start_dir, excel_file, Path(base_dir) / Path(start_dir), study_type
+                #     )
+                #     st.toast(":green[Reporting done]")
+                # if st.button("Done"):
+                #     st.experimental_rerun()
+
             generate_case_report(
-                start_dir, excel_file, Path(base_dir) / Path(start_dir), study_type
-            )
+                    start_dir, excel_file, Path(base_dir) / Path(start_dir), study_type
+                )
             st.toast(":green[Reporting done]")
-            st.experimental_rerun()
+            if st.button("Done"):
+                st.experimental_rerun()
+
+
 
 
 

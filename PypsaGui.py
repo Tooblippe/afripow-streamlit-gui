@@ -38,7 +38,7 @@ with tab1:
         f"""
     
     27/2/2024
-    * Rounding to zerio digits in Capacity and Energy Plot
+    * Rounding to zero digits in Capacity and Energy Plot
     * Show % and rounding to 1 in Loadfactor table (png), csv - write out full values
     
     
@@ -52,7 +52,7 @@ with tab1:
     * Will choose reporting xlsm files based on "_setup" in the filename
     * Fix reporting when no solved case in Results folder
     * Plot naming conventions linkName_plotType_year
-    * Implement firt version of Gui
+    * Implement first version of Gui
     """
     )
 with tab2:

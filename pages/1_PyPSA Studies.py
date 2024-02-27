@@ -157,4 +157,4 @@ if run_button:
 package_version()
 
 if __name__ == "__main__":
-    print("JA")
+    print("..")

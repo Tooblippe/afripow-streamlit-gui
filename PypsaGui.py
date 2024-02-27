@@ -3,6 +3,7 @@ __guiversion__ = "0.0.3"
 
 import logging
 import os
+import pdb
 import sys
 sys.path.insert(0, 'C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src')
 import streamlit as st
@@ -12,6 +13,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 from pages.helpers.helpers import package_version, get_package_version
+
+
+
 
 streamlit_root_logger = logging.getLogger(st.__name__)
 streamlit_root_logger.setLevel(logging.ERROR)
@@ -27,16 +31,22 @@ with st.container(border=True):
     with c2:
         st.write(f"## Afripow Pypsa Management System version {get_package_version()}")
 
+
 tab1, tab2 = st.tabs(["Changes log", "Documents"])
 with tab1:
     st.markdown(
         f"""
     
-    22/10/2024
+    27/2/2024
+    * Rounding to zerio digits in Capacity and Energy Plot
+    * Show % and rounding to 1 in Loadfactor table (png), csv - write out full values
+    
+    
+    22/2/2024
     * added solver options to - use_lpmethod_4=True,
     * added load factor graph and csv in reports
     
-    21/10/2024    
+    21/2/2024    
     * Update Energy and Capacity Plot Colors
     * CSV file transpose
     * Will choose reporting xlsm files based on "_setup" in the filename
@@ -48,5 +58,5 @@ with tab1:
 with tab2:
     st.markdown("""Docs - Reporting""")
 
-package_version()
+
 st.sidebar.write(f":green[GUI version: {__guiversion__}]")

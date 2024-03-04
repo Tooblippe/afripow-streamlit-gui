@@ -4,7 +4,10 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-sys.path.insert(0, 'C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src')
+sys.path.insert(
+    0,
+    "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
+)
 
 from afripow_pypsa.toolbox.toolbox import (
     run_incremental_demand_expansion,

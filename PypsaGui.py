@@ -1,36 +1,35 @@
 __guiversion__ = "0.0.3"
 
-
 import logging
 import os
 import pdb
 import sys
-sys.path.insert(0, 'C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src')
+
+sys.path.insert(
+    0,
+    "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
+)
 import streamlit as st
 
 # import hack
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-
 from pages.helpers.helpers import package_version, get_package_version
-
-
-
 
 streamlit_root_logger = logging.getLogger(st.__name__)
 streamlit_root_logger.setLevel(logging.ERROR)
 
 st.set_page_config(page_title="PypsaGui", page_icon="📈", layout="wide")
 
-
 with st.container(border=True):
-    c1, c2 = st.columns([1,10])
+    c1, c2 = st.columns([1, 10])
     with c1:
-        st.image("https://pypsa.readthedocs.io/en/latest/_static/pypsa-logo.png", width=100)
+        st.image(
+            "https://pypsa.readthedocs.io/en/latest/_static/pypsa-logo.png", width=100
+        )
 
     with c2:
         st.write(f"## Afripow Pypsa Management System version {get_package_version()}")
-
 
 tab1, tab2 = st.tabs(["Changes log", "Documents"])
 with tab1:
@@ -57,6 +56,5 @@ with tab1:
     )
 with tab2:
     st.markdown("""Docs - Reporting""")
-
 
 st.sidebar.write(f":green[GUI version: {__guiversion__}]")

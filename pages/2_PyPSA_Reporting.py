@@ -2,7 +2,10 @@ import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, 'C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src')
+sys.path.insert(
+    0,
+    "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
+)
 import pandas as pd
 import streamlit as st
 from PIL import Image
@@ -18,11 +21,16 @@ from afripow_pypsa.toolbox.toolbox import (
 from streamlit_extras.stylable_container import stylable_container
 
 
-from pages.helpers.helpers import (open_location, package_version, select_folder, refresh_button, page_setup,
-                                   list_directories_with_paths, find_all_images,
-                                   apply_cell_colors, )
-
-
+from pages.helpers.helpers import (
+    open_location,
+    package_version,
+    select_folder,
+    refresh_button,
+    page_setup,
+    list_directories_with_paths,
+    find_all_images,
+    apply_cell_colors,
+)
 
 
 page_setup(page_name="PyPSA Reporting")
@@ -96,11 +104,11 @@ def excel_tabs(results_folder: Path):
     )
     with tab2:
         df = load_file(excel_file, "link_to_plant")
-        styled_df = df.style.apply(apply_cell_colors, subset=['plot_color'], axis=1)
+        styled_df = df.style.apply(apply_cell_colors, subset=["plot_color"], axis=1)
         st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
     with tab3:
         df = load_file(excel_file, "plant_group")
-        styled_df = df.style.apply(apply_cell_colors, subset=['plot_color'], axis=1)
+        styled_df = df.style.apply(apply_cell_colors, subset=["plot_color"], axis=1)
         st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
     with tab1:
         data = load_file(excel_file, "study_years")
@@ -192,11 +200,12 @@ if excel_file:
             ):
                 open_location(excel_file)
             if st.button(":white[Base dir]", use_container_width=True, type="primary"):
-                open_location(base_dir)
+                open_location(Path(base_dir))
             if st.button(
                 ":white[Results dir]", use_container_width=True, type="primary"
             ):
                 open_location(results_folder)
+            link_plot_color = st.text_input("Link plot color", "#9BC2E6")
 
     base_dir = st.session_state.folder_path
 
@@ -206,8 +215,12 @@ if excel_file:
         excel_tabs(results_folder)
 
     refresh_button()
-    with stylable_container(key="terminal",
-                            css_styles="""
+
+
+
+    with stylable_container(
+        key="terminal",
+        css_styles="""
                 {
                   background-color: black;
                   color: #33FF33; /* Classic green terminal color */
@@ -216,37 +229,56 @@ if excel_file:
                   max-height: 800px; /* Maximum height */
                   overflow-y: auto; /* Enable vertical scrolling if the co
                 }
-                """, ):
+                """,
+    ):
         run_capacity_energy = st.sidebar.button(
-            ":white[Generate Capacity/Energy Plots]", type="primary", use_container_width=True
+            ":white[Generate Capacity/Energy Plots]",
+            type="primary",
+            use_container_width=True,
         )
-        run_links = st.sidebar.button(":white[Generate Link Profiles Plots]", type="primary", use_container_width=True)
-        run_all = st.sidebar.button(":white[Generate All Plots]", type="primary", use_container_width=True)
+        run_links = st.sidebar.button(
+            ":white[Generate Link Profiles Plots]",
+            type="primary",
+            use_container_width=True,
+        )
+        run_all = st.sidebar.button(
+            ":white[Generate All Plots]", type="primary", use_container_width=True
+        )
 
         if run_capacity_energy:
             with st.spinner("Report is running. Output in terminal window."):
                 generate_case_report(
-                        start_dir, excel_file, Path(base_dir) / Path(start_dir), study_type, reports_to_run=["CAPACITY_ENERGY"]
-                    )
+                    start_dir,
+                    excel_file,
+                    Path(base_dir) / Path(start_dir),
+                    study_type,
+                    reports_to_run=["CAPACITY_ENERGY"], link_plot_color=link_plot_color
+
+                )
                 st.toast(":green[Reporting done]")
 
         if run_links:
             with st.spinner("Report is running. Output in terminal window."):
-                generate_case_report(start_dir, excel_file, Path(base_dir) / Path(start_dir), study_type,
-                        reports_to_run=["LINK_PROFILES"])
+                generate_case_report(
+                    start_dir,
+                    excel_file,
+                    Path(base_dir) / Path(start_dir),
+                    study_type,
+                    reports_to_run=["LINK_PROFILES"],link_plot_color=link_plot_color
+
+                )
                 st.toast(":green[Reporting done]")
 
         if run_all:
             with st.spinner("Report is running. Output in terminal window."):
-                generate_case_report(start_dir, excel_file, Path(base_dir) / Path(start_dir), study_type,
-                        reports_to_run=["ALL"])
+                generate_case_report(
+                    start_dir,
+                    excel_file,
+                    Path(base_dir) / Path(start_dir),
+                    study_type,
+                    reports_to_run=["ALL"],link_plot_color=link_plot_color
+                )
                 st.toast(":green[Reporting done]")
-
-
-
-
-
-
 
 else:
     st.write("No valid Excel file selected")

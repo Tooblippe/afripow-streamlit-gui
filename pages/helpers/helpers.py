@@ -41,9 +41,9 @@ def list_directories_with_paths(base_directory):
     with os.scandir(base_directory) as entries:
         for entry in entries:
             if entry.is_dir():  # Check if the entry is a directory
-                directories[
-                    entry.name
-                ] = entry.path  # Add directory name and path to the dictionary
+                directories[entry.name] = (
+                    entry.path
+                )  # Add directory name and path to the dictionary
 
     return directories
 
@@ -126,4 +126,4 @@ def refresh_button(sidebar=True):
 
 
 def apply_cell_colors(s):
-    return ['background-color: %s' % color for color in s]
+    return ["background-color: %s" % color for color in s]

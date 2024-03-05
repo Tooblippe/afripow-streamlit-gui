@@ -37,6 +37,7 @@ with tab1:
         f"""
     
     05/03/2024
+    * Energy plot/data - Only add p0 for possitive energy values: SumP0 if P0>0
     * Added Energy Delta Plot
     * Added Capacity Delta Plot
     * Added Copy to Clipboard function

@@ -6,6 +6,8 @@ sys.path.insert(
     0,
     "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
 )
+
+
 import pandas as pd
 import streamlit as st
 from PIL import Image
@@ -21,16 +23,10 @@ from afripow_pypsa.toolbox.toolbox import (
 from streamlit_extras.stylable_container import stylable_container
 
 
-from pages.helpers.helpers import (
-    open_location,
-    package_version,
-    select_folder,
-    refresh_button,
-    page_setup,
-    list_directories_with_paths,
-    find_all_images,
-    apply_cell_colors,
-)
+from pages.helpers.helpers import (open_location, package_version, select_folder, refresh_button, page_setup,
+                                   list_directories_with_paths, find_all_images, apply_cell_colors,
+                                   clip, )
+
 
 
 page_setup(page_name="PyPSA Reporting")
@@ -66,6 +62,7 @@ def show_image(image_path):
     try:
         image = Image.open(image_path)
         st.image(image)
+        clip(Path(image_path))
     except:
         st.write("Not found")
 
@@ -119,17 +116,21 @@ def excel_tabs(results_folder: Path):
         with c1:
             image_path = results_folder / "capacity_plot.png"
             show_image(image_path)
-        with c2:
+
             image_path = results_folder / "capacity_plot_table.png"
             show_image(image_path)
+        with c2:
+            show_image(results_folder / 'capacity_delta_plot.png')
+
     with tab5:
         c1, c2 = st.columns(2)
         with c1:
             image_path = results_folder / "energy_plot.png"
             show_image(image_path)
-        with c2:
             image_path = results_folder / "energy_plot_table.png"
             show_image(image_path)
+        with c2:
+            show_image(results_folder / "energy_delta_plot.png")
     with tab6:
         image_path = results_folder / "load_factor_plot_table.png"
         show_image(image_path)
@@ -205,7 +206,7 @@ if excel_file:
                 ":white[Results dir]", use_container_width=True, type="primary"
             ):
                 open_location(results_folder)
-            link_plot_color = st.text_input("Link plot color", "#9BC2E6")
+            link_plot_color = st.text_input("Link plot color", "#4472C4")
 
     base_dir = st.session_state.folder_path
 
@@ -262,11 +263,11 @@ if excel_file:
                 generate_case_report(
                     start_dir,
                     excel_file,
-                    Path(base_dir) / Path(start_dir),
+                    str(Path(base_dir) / Path(start_dir)),
                     study_type,
-                    reports_to_run=["LINK_PROFILES"],link_plot_color=link_plot_color
+                    reports_to_run=["LINK_PROFILES"],link_plot_color=link_plot_color)
 
-                )
+
                 st.toast(":green[Reporting done]")
 
         if run_all:

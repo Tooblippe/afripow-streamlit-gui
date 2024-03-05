@@ -1,11 +1,13 @@
 # import subprocess
 import subprocess
 import tkinter as tk
+from io import BytesIO
 from pathlib import Path
 from tkinter import filedialog
 import os
 import streamlit as st
-
+import win32clipboard
+from PIL import Image
 
 def page_setup(page_name="PyPSA UI"):
     st.set_page_config(
@@ -66,30 +68,6 @@ def find_all_images(directory: Path) -> dict:
 
     return images_dict
 
-
-# def find_int_named_subdirs(path):
-#     """
-#     Finds all subdirectories within the given path whose names can be cast to an integer.
-#
-#     :param path: The path to search within.
-#     :return: A list of subdirectory names (as integers) that can be cast to an integer.
-#     """
-#     int_named_subdirs = []
-#
-#     # Walk through the directory structure starting at the given path
-#     for root, dirs, _ in os.walk(path):
-#         # Check each directory in dirs for subdirectories that can be cast to an integer
-#         for dir_name in dirs:
-#             if (
-#                 dir_name.isdigit()
-#             ):  # Check if the directory name can be cast to an integer
-#                 full_dir_path = os.path.join(root, dir_name)
-#                 # Add the directory name (as integer) to the list
-#                 int_named_subdirs.append(int(dir_name))
-#
-#     return int_named_subdirs
-
-
 def get_package_version():
     from afripow_pypsa.Report.Report import __version__
 
@@ -127,3 +105,19 @@ def refresh_button(sidebar=True):
 
 def apply_cell_colors(s):
     return ["background-color: %s" % color for color in s]
+
+
+def clip(filepath, clip_type=win32clipboard.CF_DIB ):
+    if st.button(":scissors:",  key=filepath):
+        image = Image.open(filepath)
+
+        output = BytesIO()
+        image.convert("RGB").save(output, "BMP")
+        data = output.getvalue()[14:]
+        output.close()
+
+        win32clipboard.OpenClipboard()
+        win32clipboard.EmptyClipboard()
+        win32clipboard.SetClipboardData(clip_type, data)
+        win32clipboard.CloseClipboard()
+        st.info(f"Sent to clipboard", icon='✂️')

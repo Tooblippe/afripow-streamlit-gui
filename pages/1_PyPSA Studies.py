@@ -19,17 +19,6 @@ from afripow_pypsa.toolbox.toolbox import (
 
 from afripow_pypsa.helpers.direcory_cases import find_int_named_subdirs
 
-# from ultraimport import ultraimport
-#
-# helpers_dir = "__dir__/helpers/helpers.py"
-# find_int_named_subdirs = ultraimport(helpers_dir, "find_int_named_subdirs")
-# open_location = ultraimport(helpers_dir, "open_location")
-# package_version = ultraimport(helpers_dir, "package_version")
-# select_folder = ultraimport(helpers_dir, "select_folder")
-# refresh_button = ultraimport(helpers_dir, "refresh_button")
-# page_setup = ultraimport(helpers_dir, "page_setup")
-# list_directories_with_paths = ultraimport(helpers_dir, "list_directories_with_paths")
-#
 
 from pages.helpers.helpers import (
     open_location,

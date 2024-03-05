@@ -36,16 +36,23 @@ with tab1:
     st.markdown(
         f"""
     
-    27/2/2024
+    05/03/2024
+    * Added Energy Delta Plot
+    * Added Capacity Delta Plot
+    * Added Copy to Clipboard function
+    * Link plot colour can be spesified before report generation
+    * Forced Link plots y-origin to zero if all values are possitive
+    
+    27/02/2024
     * Rounding to zero digits in Capacity and Energy Plot
     * Show % and rounding to 1 in Loadfactor table (png), csv - write out full values
     
-    
-    22/2/2024
+
+    22/02/2024
     * added solver options to - use_lpmethod_4=True,
     * added load factor graph and csv in reports
     
-    21/2/2024    
+    21/02/2024    
     * Update Energy and Capacity Plot Colors
     * CSV file transpose
     * Will choose reporting xlsm files based on "_setup" in the filename

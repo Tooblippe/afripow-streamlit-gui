@@ -88,7 +88,7 @@ def links_plot_insert(results_folder):
 
 
 def excel_tabs(results_folder: Path):
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, ldc = st.tabs(
         [
             "study_years",
             "links_to_plant",
@@ -97,6 +97,7 @@ def excel_tabs(results_folder: Path):
             "Energy Plot",
             "LF Plot",
             "Links",
+            "LDC"
         ]
     )
     with tab2:
@@ -136,7 +137,9 @@ def excel_tabs(results_folder: Path):
         show_image(image_path)
     with tab7:
         links_plot_insert(results_folder)
-
+    with ldc:
+        image_path = results_folder / "B_RSA1_marginal_price_durtion_curve.png"
+        show_image(image_path)
 
 # set up sidebar
 ct = st.sidebar.container(border=True)
@@ -257,13 +260,14 @@ if excel_file:
 
                 )
                 st.toast(":green[Reporting done]")
+                st.experimental_rerun()
 
         if run_links:
             with st.spinner("Report is running. Output in terminal window."):
                 generate_case_report(
                     start_dir,
                     excel_file,
-                    str(Path(base_dir) / Path(start_dir)),
+                    Path(base_dir) / Path(start_dir),
                     study_type,
                     reports_to_run=["LINK_PROFILES"],link_plot_color=link_plot_color)
 

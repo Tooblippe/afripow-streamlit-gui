@@ -107,6 +107,16 @@ def apply_cell_colors(s):
     return ["background-color: %s" % color for color in s]
 
 
+def find_files_containing_string(path, target_string):
+    matching_filenames = []  # List to hold names of files containing the target string in their name
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if target_string in file:
+                matching_filenames.append(file)  # Append the filename (not path) that contains the target string
+    return matching_filenames
+
+
+
 def clip(filepath, clip_type=win32clipboard.CF_DIB ):
     if st.button(":scissors:",  key=filepath):
         image = Image.open(filepath)

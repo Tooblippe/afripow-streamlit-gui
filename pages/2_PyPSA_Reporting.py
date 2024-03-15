@@ -24,8 +24,8 @@ from streamlit_extras.stylable_container import stylable_container
 
 
 from pages.helpers.helpers import (open_location, package_version, select_folder, refresh_button, page_setup,
-                                   list_directories_with_paths, find_all_images, apply_cell_colors,
-                                   clip, )
+                                   list_directories_with_paths, find_all_images, apply_cell_colors, clip,
+                                   find_files_containing_string, )
 
 
 
@@ -96,8 +96,8 @@ def excel_tabs(results_folder: Path):
             "Capacity Plot",
             "Energy Plot",
             "LF Plot",
-            "Links",
-            "LDC"
+            "Links Plot",
+            "MPDC Plot"
         ]
     )
     with tab2:
@@ -138,8 +138,12 @@ def excel_tabs(results_folder: Path):
     with tab7:
         links_plot_insert(results_folder)
     with ldc:
-        image_path = results_folder / "B_RSA1_marginal_price_durtion_curve.png"
-        show_image(image_path)
+
+        ldc_imgs = find_files_containing_string(results_folder, "_marginal_price_durtion_curve.png" )
+
+        for ldc in ldc_imgs:
+            image_path = results_folder / ldc
+            show_image(image_path)
 
 # set up sidebar
 ct = st.sidebar.container(border=True)
@@ -210,6 +214,7 @@ if excel_file:
             ):
                 open_location(results_folder)
             link_plot_color = st.text_input("Link plot color", "#4472C4")
+            currency = st.selectbox("Unit", ["$/MWh", "R/MWh"])
 
     base_dir = st.session_state.folder_path
 
@@ -256,8 +261,8 @@ if excel_file:
                     excel_file,
                     Path(base_dir) / Path(start_dir),
                     study_type,
-                    reports_to_run=["CAPACITY_ENERGY"], link_plot_color=link_plot_color
-
+                    reports_to_run=["CAPACITY_ENERGY"], link_plot_color=link_plot_color,
+                    currency_str = currency
                 )
                 st.toast(":green[Reporting done]")
                 st.experimental_rerun()
@@ -269,8 +274,8 @@ if excel_file:
                     excel_file,
                     Path(base_dir) / Path(start_dir),
                     study_type,
-                    reports_to_run=["LINK_PROFILES"],link_plot_color=link_plot_color)
-
+                    reports_to_run=["LINK_PROFILES"],link_plot_color=link_plot_color),
+                currency_str = currency
 
                 st.toast(":green[Reporting done]")
 
@@ -281,7 +286,7 @@ if excel_file:
                     excel_file,
                     Path(base_dir) / Path(start_dir),
                     study_type,
-                    reports_to_run=["ALL"],link_plot_color=link_plot_color
+                    reports_to_run=["ALL"],link_plot_color=link_plot_color, currency_str=currency
                 )
                 st.toast(":green[Reporting done]")
 

@@ -25,7 +25,7 @@ from streamlit_extras.stylable_container import stylable_container
 
 from pages.helpers.helpers import (open_location, package_version, select_folder, refresh_button, page_setup,
                                    list_directories_with_paths, find_all_images, apply_cell_colors, clip,
-                                   find_files_containing_string, )
+                                   find_files_containing_string, list_directories_containing_results, )
 
 
 
@@ -170,14 +170,18 @@ excel_file = file_selector(Path(base_dir), ct)
 study_type = None
 study_years = []
 results_folder = None
+
+
 if excel_file:
-    study_type = ct.selectbox(
-        "Select input folder", ["Results_uc", "Results_opt", "Results_opti"]
-    )
+
+
 
     excel_file_df = load_file(excel_file, "study_years")
 
     study_years = excel_file_df.loc[excel_file_df.select == 1].years.to_list()
+
+    study_type = ct.selectbox("Select input folder",
+            list_directories_containing_results(Path(base_dir) / Path(start_dir) / str(study_years[0])))
 
 st.write(f"## PyPSA report generation")
 
@@ -281,6 +285,11 @@ if excel_file:
 
         if run_all:
             with st.spinner("Report is running. Output in terminal window."):
+                st.write("start_dir", start_dir)
+                st.write("excel_file", excel_file)
+                st.write(Path(base_dir) / Path(start_dir))
+                st.write(study_type)
+
                 generate_case_report(
                     start_dir,
                     excel_file,

@@ -116,6 +116,39 @@ def find_files_containing_string(path, target_string):
     return matching_filenames
 
 
+import os
+
+import os
+
+def list_directories_containing_results(input_path):
+    """
+    List all directories within the given input path that contain the string "Results_" in their name.
+
+    :param input_path: Path to search for directories.
+    :return: A list of directory names that contain the string "Results_".
+    """
+    directories_with_results = []
+    # Ensure the input path is absolute
+    input_path = os.path.abspath(input_path)
+
+    # Check if the input path exists and is a directory
+    if not os.path.exists(input_path) or not os.path.isdir(input_path):
+        print(f"The path {input_path} does not exist or is not a directory.")
+        return directories_with_results
+
+    try:
+        # List all entries in the given path
+        for entry in os.listdir(input_path):
+            full_path = os.path.join(input_path, entry)
+            # Check if the entry is a directory and contains the string "Results_"
+            if os.path.isdir(full_path) and "Results_" in entry:
+                directories_with_results.append(entry)  # Append only the directory name
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+    return directories_with_results
+
+
 
 def clip(filepath, clip_type=win32clipboard.CF_DIB ):
     if st.button(":scissors:",  key=filepath):

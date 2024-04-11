@@ -88,7 +88,7 @@ def links_plot_insert(results_folder):
 
 
 def excel_tabs(results_folder: Path):
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, ldc = st.tabs(
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, ldc, dispatch = st.tabs(
         [
             "study_years",
             "links_to_plant",
@@ -97,7 +97,8 @@ def excel_tabs(results_folder: Path):
             "Energy Plot",
             "LF Plot",
             "Links Plot",
-            "MPDC Plot"
+            "MPDC Plot",
+            'Dispatch'
         ]
     )
     with tab2:
@@ -139,10 +140,17 @@ def excel_tabs(results_folder: Path):
         links_plot_insert(results_folder)
     with ldc:
 
-        ldc_imgs = find_files_containing_string(results_folder, "_marginal_price_durtion_curve.png" )
+        ldc_imgs = find_files_containing_string(results_folder/"marginal_price", "_marginal_price_durtion_curve.png" )
 
         for ldc in ldc_imgs:
-            image_path = results_folder / ldc
+            image_path = results_folder / "marginal_price" /ldc
+            show_image(image_path)
+    with dispatch:
+
+        ldc_imgs = find_files_containing_string(results_folder/"average_dispatch", "average_dispatch_" )
+
+        for ldc in ldc_imgs:
+            image_path = results_folder / "average_dispatch" / ldc
             show_image(image_path)
 
 # set up sidebar

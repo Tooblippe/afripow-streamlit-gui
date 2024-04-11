@@ -263,9 +263,9 @@ if excel_file:
             type="primary",
             use_container_width=True,
         )
-        run_all = st.sidebar.button(
-            ":white[Generate All Plots]", type="primary", use_container_width=True
-        )
+        # run_all = st.sidebar.button(
+        #     ":white[Generate All Plots]", type="primary", use_container_width=True
+        # )
 
         if run_capacity_energy:
             with st.spinner("Report is running. Output in terminal window."):

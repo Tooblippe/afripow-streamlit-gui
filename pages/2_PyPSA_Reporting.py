@@ -166,6 +166,7 @@ if folder_select_button:
 base_dir = st.session_state.folder_path
 
 
+
 # Case selection
 input_dirs = list_directories_with_paths(Path(base_dir))
 start_dir = ct.selectbox(
@@ -273,7 +274,8 @@ if excel_file:
                     excel_file,
                     Path(base_dir) / Path(start_dir),
                     study_type,
-                    reports_to_run=["CAPACITY_ENERGY"], link_plot_color=link_plot_color,
+                    reports_to_run=["CAPACITY_ENERGY"],
+                    link_plot_color=link_plot_color,
                     currency_str = currency
                 )
                 st.toast(":green[Reporting done]")
@@ -286,8 +288,9 @@ if excel_file:
                     excel_file,
                     Path(base_dir) / Path(start_dir),
                     study_type,
-                    reports_to_run=["LINK_PROFILES"],link_plot_color=link_plot_color),
-                currency_str = currency
+                    reports_to_run=["LINK_PROFILES"],
+                    link_plot_color=link_plot_color,
+                    currency_str = currency)
 
                 st.toast(":green[Reporting done]")
 
@@ -303,7 +306,9 @@ if excel_file:
                     excel_file,
                     Path(base_dir) / Path(start_dir),
                     study_type,
-                    reports_to_run=["ALL"],link_plot_color=link_plot_color, currency_str=currency
+                    reports_to_run=["ALL"],
+                    link_plot_color=link_plot_color,
+                    currency_str=currency
                 )
                 st.toast(":green[Reporting done]")
 

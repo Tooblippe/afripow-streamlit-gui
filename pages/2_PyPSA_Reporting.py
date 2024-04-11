@@ -294,23 +294,23 @@ if excel_file:
 
                 st.toast(":green[Reporting done]")
 
-        if run_all:
-            with st.spinner("Report is running. Output in terminal window."):
-                st.write("start_dir", start_dir)
-                st.write("excel_file", excel_file)
-                st.write(Path(base_dir) / Path(start_dir))
-                st.write(study_type)
-
-                generate_case_report(
-                    start_dir,
-                    excel_file,
-                    Path(base_dir) / Path(start_dir),
-                    study_type,
-                    reports_to_run=["ALL"],
-                    link_plot_color=link_plot_color,
-                    currency_str=currency
-                )
-                st.toast(":green[Reporting done]")
+        # if run_all:
+        #     with st.spinner("Report is running. Output in terminal window."):
+        #         st.write("start_dir", start_dir)
+        #         st.write("excel_file", excel_file)
+        #         st.write(Path(base_dir) / Path(start_dir))
+        #         st.write(study_type)
+        #
+        #         generate_case_report(
+        #             start_dir,
+        #             excel_file,
+        #             Path(base_dir) / Path(start_dir),
+        #             study_type,
+        #             reports_to_run=["ALL"],
+        #             link_plot_color=link_plot_color,
+        #             currency_str=currency
+        #         )
+        #         st.toast(":green[Reporting done]")
 
 else:
     st.write("No valid Excel file selected")

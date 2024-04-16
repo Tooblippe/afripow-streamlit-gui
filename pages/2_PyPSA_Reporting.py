@@ -32,7 +32,7 @@ from pages.helpers.helpers import (open_location, package_version, select_folder
 page_setup(page_name="PyPSA Reporting")
 silence_warnings()
 set_cplex_licence_key()
-
+st.write(f"## PyPSA Reporting")
 
 def load_file(filename, sheet_name):
     """Loads a Excel file with pandas and turn the sheet into a dataframe"""
@@ -88,27 +88,46 @@ def links_plot_insert(results_folder):
 
 
 def excel_tabs(results_folder: Path):
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, ldc, dispatch = st.tabs(
-        [
-            "study_years",
-            "links_to_plant",
-            "plant_group",
-            "Capacity Plot",
-            "Energy Plot",
-            "LF Plot",
-            "Links Plot",
-            "MPDC Plot",
+    global advanced_settings
+    tabs =  [
+            "Setup",
+            "Study Years",
+            "Links to Plant",
+            "Plant Group",
+            "Capacity",
+            "Energy",
+            "Load Factor",
+            "Links",
+            "Marginal Price",
             'Dispatch'
         ]
-    )
-    with tab2:
-        df = load_file(excel_file, "link_to_plant")
-        styled_df = df.style.apply(apply_cell_colors, subset=["plot_color"], axis=1)
-        st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
-    with tab3:
-        df = load_file(excel_file, "plant_group")
-        styled_df = df.style.apply(apply_cell_colors, subset=["plot_color"], axis=1)
-        st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
+
+    if not advanced_settings:
+        tabs.remove("Links to Plant")
+        tabs.remove("Plant Group")
+
+        setup, tab1, tab4, tab5, tab6, tab7, ldc, dispatch = st.tabs(
+           tabs
+        )
+    else:
+        setup, tab1, tab2, tab3, tab4, tab5, tab6, tab7, ldc, dispatch = st.tabs(tabs)
+
+
+
+    with setup:
+        st.table(data={"Project Directory"    : Path(base_dir), "Path to case": Path(base_dir) / Path(start_dir),
+                "Path to Excel file"          : excel_file, "Study Years Selected In Excel File": str(study_years),
+                "Inputs directory (load from)": study_type, "Results folder (write to)": results_folder, }, )
+
+    if advanced_settings:
+        with tab2:
+            df = load_file(excel_file, "link_to_plant")
+            styled_df = df.style.apply(apply_cell_colors, subset=["plot_color"], axis=1)
+            st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
+        with tab3:
+            df = load_file(excel_file, "plant_group")
+            styled_df = df.style.apply(apply_cell_colors, subset=["plot_color"], axis=1)
+            st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
     with tab1:
         data = load_file(excel_file, "study_years")
         data.set_index("years", inplace=True)
@@ -182,9 +201,6 @@ results_folder = None
 
 
 if excel_file:
-
-
-
     excel_file_df = load_file(excel_file, "study_years")
 
     study_years = excel_file_df.loc[excel_file_df.select == 1].years.to_list()
@@ -192,7 +208,7 @@ if excel_file:
     study_type = ct.selectbox("Select input folder",
             list_directories_containing_results(Path(base_dir) / Path(start_dir) / str(study_years[0])))
 
-st.write(f"## PyPSA report generation")
+
 
 
 if study_type:
@@ -200,20 +216,11 @@ if study_type:
         Path(base_dir) / Path(start_dir) / Path("reporting_outputs_" + study_type)
     )
 
+advanced_settings = False
 if excel_file:
     C1, C2, *_ = st.columns([9, 2])
-    with C1:
-        with st.container(border=True):
-            st.table(
-                data={
-                    "Project Directory": Path(base_dir),
-                    "Path to case": Path(base_dir) / Path(start_dir),
-                    "Path to Excel file": excel_file,
-                    "Study Years Selected In Excel File": str(study_years),
-                    "Inputs directory (load from)": study_type,
-                    "Results folder (write to)": results_folder,
-                },
-            )
+
+
     with C2:
         with st.container(border=True):
             if st.button(
@@ -235,12 +242,18 @@ if excel_file:
                 except ValueError:
                     marginal_price_y_lim = None
 
+            advanced_settings = st.checkbox("Advanced Settings", False)
+
+    with C1:
+        with st.container(border=True):
+            excel_tabs(results_folder)
+
     base_dir = st.session_state.folder_path
 
     # Input summary
 
-    with st.container(border=True):
-        excel_tabs(results_folder)
+    # with st.container(border=True):
+    #     excel_tabs(results_folder)
 
     refresh_button()
 

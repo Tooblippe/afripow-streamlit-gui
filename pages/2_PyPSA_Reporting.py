@@ -226,8 +226,14 @@ if excel_file:
                 ":white[Results dir]", use_container_width=True, type="primary"
             ):
                 open_location(results_folder)
-            link_plot_color = st.text_input("Link plot color", "#4472C4")
-            currency = st.selectbox("Unit", ["$/MWh", "R/MWh"])
+            link_plot_color = st.text_input("Link plot color.", "#4472C4")
+            currency = st.selectbox("Marginal Price - Y-axis unit", ["$/MWh", "R/MWh"])
+            marginal_price_y_lim = st.text_input("Marginal Price - Y-axis limit", "Enter Value")
+            if marginal_price_y_lim:
+                try:
+                    marginal_price_y_lim = float(marginal_price_y_lim)
+                except ValueError:
+                    marginal_price_y_lim = None
 
     base_dir = st.session_state.folder_path
 
@@ -267,6 +273,10 @@ if excel_file:
         #     ":white[Generate All Plots]", type="primary", use_container_width=True
         # )
 
+        settings_kwargs = {
+                "marginal_price_durtion_curve_plot" : {"plt" : {"ylim": (0, marginal_price_y_lim)} }
+        }
+        print(settings_kwargs)
         if run_capacity_energy:
             with st.spinner("Report is running. Output in terminal window."):
                 generate_case_report(
@@ -276,7 +286,8 @@ if excel_file:
                     study_type,
                     reports_to_run=["CAPACITY_ENERGY"],
                     link_plot_color=link_plot_color,
-                    currency_str = currency
+                    currency_str = currency,
+                    **settings_kwargs
                 )
                 st.toast(":green[Reporting done]")
                 st.experimental_rerun()
@@ -290,7 +301,9 @@ if excel_file:
                     study_type,
                     reports_to_run=["LINK_PROFILES"],
                     link_plot_color=link_plot_color,
-                    currency_str = currency)
+                    currency_str = currency,
+                    **settings_kwargs
+                )
 
                 st.toast(":green[Reporting done]")
 

@@ -89,7 +89,7 @@ study_type = st_container.selectbox("Select study type", STUDY_TYPES.keys())
 
 # process inputs and show available years in case folder
 years_in_directory = find_int_named_subdirs(Path(base_dir) / start_dir)
-st.write(years_in_directory)
+
 years = st_container.multiselect(
     f"Study years found in {start_dir}", years_in_directory, placeholder="Select years", default=years_in_directory
 )

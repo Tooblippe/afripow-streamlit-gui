@@ -28,12 +28,12 @@ STUDY_TYPES = {"1. Unconstrained Expansion"     : {"input"   : "Inputs", "output
                                                    "function": run_optimum_expansion, "doc": "Add docs", },
                "3. Incremental Demand Expansion": {"input"   : "Results_opt", "output": "Results_opti",
                                                    "function": run_incremental_demand_expansion, "doc": "Add docs", },
-               # "4. Excess Energy Optimisation": {
-               #     "input": "Results_opt",
-               #     "output": "Results_opti",
-               #     "function": excess_energy_optimisation,
-               #     "doc": "Optimise Excess Energy",
-               # },
+               "4. Excess Energy Optimisation": {
+                   "input": "Results_opt",
+                   "output": "Results_opti",
+                   "function": excess_energy_optimisation,
+                   "doc": "Optimise Excess Energy",
+               },
                }
 
 st_container = st.sidebar.container(border=True)

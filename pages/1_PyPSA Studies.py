@@ -4,6 +4,11 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from pages.helpers.excess_energy_optimisation import (
+    excess_energy_optimisation,
+    fetch_excess_energy_parameters,
+)
+
 sys.path.insert(
     0,
     "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
@@ -20,14 +25,8 @@ from afripow_pypsa.toolbox.toolbox import (
 from afripow_pypsa.helpers.direcory_cases import find_int_named_subdirs
 
 
-from pages.helpers.helpers import (
-    open_location,
-    package_version,
-    select_folder,
-    refresh_button,
-    page_setup,
-    list_directories_with_paths,
-)
+from pages.helpers.helpers import (open_location, package_version, select_folder, refresh_button, page_setup,
+                                   list_directories_with_paths, file_selector, )
 
 
 page_setup(page_name="PyPSA Studies")
@@ -55,6 +54,12 @@ STUDY_TYPES = {
         "function": run_incremental_demand_expansion,
         "doc": "Add docs",
     },
+    # "4. Excess Energy Optimisation": {
+    #     "input": "Results_opt",
+    #     "output": "Results_opti",
+    #     "function": excess_energy_optimisation,
+    #     "doc": "Optimise Excess Energy",
+    # },
 }
 
 
@@ -91,7 +96,10 @@ study_type = st_container.selectbox("Select study type", STUDY_TYPES.keys())
 years_in_directory = find_int_named_subdirs(Path(base_dir) / start_dir)
 
 years = st_container.multiselect(
-    f"Study years found in {start_dir}", years_in_directory, placeholder="Select years", default=years_in_directory
+    f"Study years found in {start_dir}",
+    years_in_directory,
+    placeholder="Select years",
+    default=years_in_directory,
 )
 
 # refresh button
@@ -106,26 +114,63 @@ save_to_dir = STUDY_TYPES[study_type]["output"]
 doc = STUDY_TYPES[study_type]["doc"]
 solver_function = STUDY_TYPES[study_type]["function"]
 
-
+setttings_file = None
 # Table summary
-st.table(
-    pd.DataFrame(
-        [doc, base_dir, start_dir, load_from_dir, save_to_dir, years],
-        columns=["Value"],
-        index=[
-            "Study description",
-            "Study base directory",
-            "Selected Case",
-            f"Case input directory [load from]",
-            "Results output directory [write to]",
-            "Selected Solver Years",
-        ],
+if study_type != "4. Excess Energy Optimisation":
+    st.table(
+        pd.DataFrame(
+            [doc, base_dir, start_dir, load_from_dir, save_to_dir, years],
+            columns=["Value"],
+            index=[
+                "Study description",
+                "Study base directory",
+                "Selected Case",
+                f"Case input directory [load from]",
+                "Results output directory [write to]",
+                "Selected Solver Years",
+            ],
+        )
     )
-)
+else:
+    setttings_file = file_selector(Path(base_dir), st)
+    if setttings_file:
+        excess_params = fetch_excess_energy_parameters(setttings_file)
+        st.table(
+            pd.DataFrame(
+                [
+                    doc,
+                    base_dir,
+                    start_dir,
+                    load_from_dir,
+                    save_to_dir,
+                    setttings_file,
+                    years,
+                    excess_params["excess_generator"],
+                    excess_params["excess_energy_link_name"],
+                    excess_params["excess_energy_link_pnom_max" ],
+                    excess_params["excess_energy_prices"],
+                ],
+                columns=["Value"],
+                index=[
+                    "Study description",
+                    "Study base directory",
+                    "Selected Case",
+                    f"Case input directory [load from]",
+                    "Results output directory [write to]",
+                    "Setting file",
+                    "Selected Solver Years",
+                    "Excess Energy - Generator",
+                    "Excess Energy - Link",
+                    "Excess Energy - Link - pnom_max",
+                    "Excess Energy - Prices",
+                ],
+            )
+        )
+
 
 
 # open case folder
-if st.button(":white[Open Case Directory]", type="primary"):
+if st.button("Open Case Directory", type="primary"):
     open_location(Path(base_dir) / start_dir)
 
 
@@ -137,14 +182,16 @@ run_button = st.sidebar.button(
 )
 if run_button:
     with st.spinner("Report is running. Output in terminal window."):
+
         f = STUDY_TYPES[study_type]["function"]
         f(
             base_dir / Path(start_dir),
             [str(y) for y in years],
             load_from_dir,
             save_to_dir,
+                setttings_file=setttings_file
         )
-        st.experimental_rerun()
+        # st.rerun()
 
 
 package_version()

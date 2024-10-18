@@ -25,8 +25,8 @@ from streamlit_extras.stylable_container import stylable_container
 
 from pages.helpers.helpers import (open_location, package_version, select_folder, refresh_button, page_setup,
                                    list_directories_with_paths, find_all_images, apply_cell_colors, clip,
-                                   find_files_containing_string, list_directories_containing_results, )
-
+                                   find_files_containing_string, list_directories_containing_results, load_file,
+                                   file_selector, )
 
 
 page_setup(page_name="PyPSA Reporting")
@@ -34,28 +34,29 @@ silence_warnings()
 set_cplex_licence_key()
 st.write(f"## PyPSA Reporting")
 
-def load_file(filename, sheet_name):
-    """Loads a Excel file with pandas and turn the sheet into a dataframe"""
-    df = pd.read_excel(filename, sheet_name=sheet_name)
-    df = df.loc[:, ~df.columns.str.contains("Unnamed")]
-    return df
 
-
-def file_selector(folder_path, show_context):
-    """Produces a file selector of all files meeting the criteria:
-    ext = "xlsm" and
-    __setup__ is found in the filename
-    e.g. case_bwa\reporting_setup_and_settings_BWA.xlsm
-    """
-    filenames = os.listdir(folder_path)
-    filenames = [f for f in filenames if "xlsm" in f]
-    filenames = [f for f in filenames if "_setup_" in f]
-    if filenames:
-        selected_filename = show_context.selectbox("Select a file", filenames)
-        return os.path.join(folder_path, selected_filename)
-    else:
-        show_context.write("No Excel settings file in directory")
-        return []
+# def load_file(filename, sheet_name):
+#     """Loads a Excel file with pandas and turn the sheet into a dataframe"""
+#     df = pd.read_excel(filename, sheet_name=sheet_name)
+#     df = df.loc[:, ~df.columns.str.contains("Unnamed")]
+#     return df
+#
+#
+# def file_selector(folder_path, show_context):
+#     """Produces a file selector of all files meeting the criteria:
+#     ext = "xlsm" and
+#     __setup__ is found in the filenamee
+#     e.g. case_bwa\reporting_setup_and_settings_BWA.xlsm
+#     """
+#     filenames = os.listdir(folder_path)
+#     filenames = [f for f in filenames if "xlsm" in f]
+#     filenames = [f for f in filenames if "_setup_" in f]
+#     if filenames:
+#         selected_filename = show_context.selectbox("Select settings file", filenames)
+#         return os.path.join(folder_path, selected_filename)
+#     else:
+#         show_context.write("No Excel settings file in directory")
+#         return []
 
 
 def show_image(image_path):
@@ -89,35 +90,38 @@ def links_plot_insert(results_folder):
 
 def excel_tabs(results_folder: Path):
     global advanced_settings
-    tabs =  [
-            "Setup",
-            "Study Years",
-            "Links to Plant",
-            "Plant Group",
-            "Capacity",
-            "Energy",
-            "Load Factor",
-            "Links",
-            "Marginal Price",
-            'Dispatch'
-        ]
+    tabs = [
+        "Setup",
+        "Study Years",
+        "Links to Plant",
+        "Plant Group",
+        "Capacity",
+        "Energy",
+        "Load Factor",
+        "Links",
+        "Marginal Price",
+        "Dispatch",
+    ]
 
     if not advanced_settings:
         tabs.remove("Links to Plant")
         tabs.remove("Plant Group")
 
-        setup, tab1, tab4, tab5, tab6, tab7, ldc, dispatch = st.tabs(
-           tabs
-        )
+        setup, tab1, tab4, tab5, tab6, tab7, ldc, dispatch = st.tabs(tabs)
     else:
         setup, tab1, tab2, tab3, tab4, tab5, tab6, tab7, ldc, dispatch = st.tabs(tabs)
 
-
-
     with setup:
-        st.table(data={"Project Directory"    : Path(base_dir), "Path to case": Path(base_dir) / Path(start_dir),
-                "Path to Excel file"          : excel_file, "Study Years Selected In Excel File": str(study_years),
-                "Inputs directory (load from)": study_type, "Results folder (write to)": results_folder, }, )
+        st.table(
+            data={
+                "Project Directory": Path(base_dir),
+                "Path to case": Path(base_dir) / Path(start_dir),
+                "Path to Excel file": excel_file,
+                "Study Years Selected In Excel File": str(study_years),
+                "Inputs directory (load from)": study_type,
+                "Results folder (write to)": results_folder,
+            },
+        )
 
     if advanced_settings:
         with tab2:
@@ -141,7 +145,7 @@ def excel_tabs(results_folder: Path):
             image_path = results_folder / "capacity_plot_table.png"
             show_image(image_path)
         with c2:
-            show_image(results_folder / 'capacity_delta_plot.png')
+            show_image(results_folder / "capacity_delta_plot.png")
 
     with tab5:
         c1, c2 = st.columns(2)
@@ -159,18 +163,23 @@ def excel_tabs(results_folder: Path):
         links_plot_insert(results_folder)
     with ldc:
 
-        ldc_imgs = find_files_containing_string(results_folder/"marginal_price", "_marginal_price_durtion_curve.png" )
+        ldc_imgs = find_files_containing_string(
+            results_folder / "marginal_price", "_marginal_price_durtion_curve.png"
+        )
 
         for ldc in ldc_imgs:
-            image_path = results_folder / "marginal_price" /ldc
+            image_path = results_folder / "marginal_price" / ldc
             show_image(image_path)
     with dispatch:
 
-        ldc_imgs = find_files_containing_string(results_folder/"average_dispatch", "average_dispatch_" )
+        ldc_imgs = find_files_containing_string(
+            results_folder / "average_dispatch", "average_dispatch_"
+        )
 
         for ldc in ldc_imgs:
             image_path = results_folder / "average_dispatch" / ldc
             show_image(image_path)
+
 
 # set up sidebar
 ct = st.sidebar.container(border=True)
@@ -183,7 +192,6 @@ if folder_select_button:
     base_dir = select_folder()
     st.session_state.folder_path = base_dir
 base_dir = st.session_state.folder_path
-
 
 
 # Case selection
@@ -205,10 +213,12 @@ if excel_file:
 
     study_years = excel_file_df.loc[excel_file_df.select == 1].years.to_list()
 
-    study_type = ct.selectbox("Select input folder",
-            list_directories_containing_results(Path(base_dir) / Path(start_dir) / str(study_years[0])))
-
-
+    study_type = ct.selectbox(
+        "Select input folder",
+        list_directories_containing_results(
+            Path(base_dir) / Path(start_dir) / str(study_years[0])
+        ),
+    )
 
 
 if study_type:
@@ -216,26 +226,30 @@ if study_type:
         Path(base_dir) / Path(start_dir) / Path("reporting_outputs_" + study_type)
     )
 
+    if not os.path.exists(results_folder):
+        os.makedirs(results_folder)
+
 advanced_settings = False
 if excel_file:
     C1, C2, *_ = st.columns([9, 2])
 
-
     with C2:
         with st.container(border=True):
             if st.button(
-                ":white[Settings file]", use_container_width=True, type="primary"
+                "Settings file", use_container_width=True, type="primary"
             ):
                 open_location(excel_file)
-            if st.button(":white[Base dir]", use_container_width=True, type="primary"):
+            if st.button("Base dir", use_container_width=True, type="primary"):
                 open_location(Path(base_dir))
             if st.button(
-                ":white[Results dir]", use_container_width=True, type="primary"
+                "Results dir", use_container_width=True, type="primary"
             ):
                 open_location(results_folder)
             link_plot_color = st.text_input("Link plot color.", "#4472C4")
             currency = st.selectbox("Marginal Price - Y-axis unit", ["$/MWh", "R/MWh"])
-            marginal_price_y_lim = st.text_input("Marginal Price - Y-axis limit", "Enter Value")
+            marginal_price_y_lim = st.text_input(
+                "Marginal Price - Y-axis limit", "Enter Value"
+            )
             if marginal_price_y_lim:
                 try:
                     marginal_price_y_lim = float(marginal_price_y_lim)
@@ -257,8 +271,6 @@ if excel_file:
 
     refresh_button()
 
-
-
     with stylable_container(
         key="terminal",
         css_styles="""
@@ -273,12 +285,12 @@ if excel_file:
                 """,
     ):
         run_capacity_energy = st.sidebar.button(
-            ":white[Generate Capacity/Energy Plots]",
+            "Generate Capacity/Energy Plots",
             type="primary",
             use_container_width=True,
         )
         run_links = st.sidebar.button(
-            ":white[Generate Link Profiles Plots]",
+            "Generate Link Profiles Plots",
             type="primary",
             use_container_width=True,
         )
@@ -287,7 +299,9 @@ if excel_file:
         # )
 
         settings_kwargs = {
-                "marginal_price_durtion_curve_plot" : {"plt" : {"ylim": (0, marginal_price_y_lim)} }
+            "marginal_price_durtion_curve_plot": {
+                "plt": {"ylim": (0, marginal_price_y_lim)}
+            }
         }
         print(settings_kwargs)
         if run_capacity_energy:
@@ -299,11 +313,11 @@ if excel_file:
                     study_type,
                     reports_to_run=["CAPACITY_ENERGY"],
                     link_plot_color=link_plot_color,
-                    currency_str = currency,
-                    **settings_kwargs
+                    currency_str=currency,
+                    **settings_kwargs,
                 )
                 st.toast(":green[Reporting done]")
-                st.experimental_rerun()
+                st.rerun()
 
         if run_links:
             with st.spinner("Report is running. Output in terminal window."):
@@ -314,8 +328,8 @@ if excel_file:
                     study_type,
                     reports_to_run=["LINK_PROFILES"],
                     link_plot_color=link_plot_color,
-                    currency_str = currency,
-                    **settings_kwargs
+                    currency_str=currency,
+                    **settings_kwargs,
                 )
 
                 st.toast(":green[Reporting done]")

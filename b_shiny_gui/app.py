@@ -5,7 +5,7 @@ import shinyswatch
 
 from palmerpenguins import load_penguins
 
-penguins  = load_penguins()
+penguins = load_penguins()
 selectors = penguins.columns.to_list()
 
 
@@ -19,7 +19,7 @@ app_ui = ui.page_fluid(
     # AppSideBar(),
     ui.input_selectize("select", label="what", choices=selectors),
     ui.output_data_frame("penguins_df"),
-    ui.output_plot("plot_penguins_df")
+    ui.output_plot("plot_penguins_df"),
 )
 
 
@@ -31,5 +31,6 @@ def server(input, output, session):
     @render.plot
     def plot_penguins_df():
         return penguins[[input.select()]].plot()
+
 
 app = App(app_ui, server)

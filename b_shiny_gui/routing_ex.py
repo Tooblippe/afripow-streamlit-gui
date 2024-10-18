@@ -18,13 +18,26 @@ ICONS = {
     "user": fa.icon_svg("user", "regular"),
     "wallet": fa.icon_svg("wallet"),
     "currency-dollar": fa.icon_svg("dollar-sign"),
-    "gear": fa.icon_svg("gear")
+    "gear": fa.icon_svg("gear"),
 }
 
 app_ui = ui.page_sidebar(
     ui.sidebar(
-        ui.input_slider("total_bill", "Bill amount", min=bill_rng[0], max=bill_rng[1], value=bill_rng, pre="$"),
-        ui.input_checkbox_group("time", "Food service", ["Lunch", "Dinner"], selected=["Lunch", "Dinner"], inline=True),
+        ui.input_slider(
+            "total_bill",
+            "Bill amount",
+            min=bill_rng[0],
+            max=bill_rng[1],
+            value=bill_rng,
+            pre="$",
+        ),
+        ui.input_checkbox_group(
+            "time",
+            "Food service",
+            ["Lunch", "Dinner"],
+            selected=["Lunch", "Dinner"],
+            inline=True,
+        ),
         ui.input_action_button("reset", "Reset filter"),
     ),
     ui.layout_columns(
@@ -60,14 +73,15 @@ app_ui = ui.page_sidebar(
                 ui.popover(
                     ICONS["gear"],
                     ui.input_radio_buttons(
-                        "scatter_color", None,
+                        "scatter_color",
+                        None,
                         ["none", "sex", "smoker", "day", "time"],
                         inline=True,
                     ),
                     title="Add a color variable",
                     placement="top",
                 ),
-                class_="d-flex justify-content-between align-items-center"
+                class_="d-flex justify-content-between align-items-center",
             ),
             output_widget("scatterplot"),
             full_screen=True,
@@ -78,7 +92,8 @@ app_ui = ui.page_sidebar(
                 ui.popover(
                     ICONS["gear"],
                     ui.input_radio_buttons(
-                        "tip_perc_y", "Split by:",
+                        "tip_perc_y",
+                        "Split by:",
                         ["sex", "smoker", "day", "time"],
                         selected="day",
                         inline=True,
@@ -95,6 +110,7 @@ app_ui = ui.page_sidebar(
     title="Restaurant tipping",
     fillable=True,
 )
+
 
 def server(input, output, session):
 
@@ -141,7 +157,6 @@ def server(input, output, session):
     def table():
         return render.DataGrid(tips_data())
 
-
     @render_plotly
     def scatterplot():
         color = input.scatter_color()
@@ -150,39 +165,42 @@ def server(input, output, session):
             x="total_bill",
             y="tip",
             color=None if color == "none" else color,
-            trendline="lowess"
+            trendline="lowess",
         )
 
     @render_plotly
     def tip_perc():
         from ridgeplot import ridgeplot
+
         dat = tips_data().copy()
         dat.loc[:, "percent"] = dat.tip / dat.total_bill
         yvar = input.tip_perc_y()
         uvals = dat[yvar].unique()
 
-        samples = [
-            [ dat.percent[dat[yvar] == val] ]
-            for val in uvals
-        ]
+        samples = [[dat.percent[dat[yvar] == val]] for val in uvals]
 
         plt = ridgeplot(
-            samples=samples, labels=uvals, bandwidth=0.01,
-            colorscale="viridis", colormode="row-index"
+            samples=samples,
+            labels=uvals,
+            bandwidth=0.01,
+            colorscale="viridis",
+            colormode="row-index",
         )
 
         plt.update_layout(
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5)
+            legend=dict(
+                orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5
+            )
         )
 
         return plt
+
 
 apptest = App(app_ui, server)
 
 # combine apps ----
 routes = [
-    Mount('/static', app=apptest),
-
+    Mount("/static", app=apptest),
 ]
 
 app = Starlette(routes=routes)

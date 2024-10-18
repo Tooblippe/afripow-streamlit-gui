@@ -30,11 +30,14 @@ def find_all_images(directory: Path) -> dict:
 
     return images_dict
 
+
 @anvil.server.callable
 def send_images():
     print("here")
     year = "2039"
-    p = Path(r"C:\Users\tobie\PycharmProjects\afripow-pypsa-reporting\case_bwa\Opti\reporting_outputs_Results_opt") / Path(year)
+    p = Path(
+        r"C:\Users\tobie\PycharmProjects\afripow-pypsa-reporting\case_bwa\Opti\reporting_outputs_Results_opt"
+    ) / Path(year)
     print(p)
     all_images = find_all_images(p)
     print(all_images)
@@ -42,13 +45,11 @@ def send_images():
     images = []
 
     for link in all_images.keys():
-        with open(all_images[link], 'rb') as f:
+        with open(all_images[link], "rb") as f:
             images.append(anvil.BlobMedia("image/png", f.read()))
-
 
     print(images)
     return images
-
 
 
 anvil.server.wait_forever()

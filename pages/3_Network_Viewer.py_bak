@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pypsa
 import streamlit as st
+
 sys.path.insert(
     0,
     "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
@@ -39,9 +40,11 @@ start_dir = st_container.selectbox(
     "Select case",
     input_dirs.keys(),
 )
-year = str(st.selectbox("Select year", find_int_named_subdirs(Path(base_dir)/start_dir)))
+year = str(
+    st.selectbox("Select year", find_int_named_subdirs(Path(base_dir) / start_dir))
+)
 
-network_path = Path(base_dir)/start_dir/year/"Results_uc"
+network_path = Path(base_dir) / start_dir / year / "Results_uc"
 n = pypsa.Network()
 n.import_from_csv_folder(network_path)
 
@@ -50,16 +53,15 @@ element = st.selectbox("Element", sheets)
 df = n.df(element)
 df = n.links_t.p0
 columns = df.columns
-column = st.selectbox("Select columns",columns)
+column = st.selectbox("Select columns", columns)
 
 
-
-a,b,c = st.columns(3)
+a, b, c = st.columns(3)
 
 with a:
-    x = [i+1 for i,_ in enumerate(n.snapshots)]
-    df['x'] =x
-    st.pyplot(df.plot(kind="scatter", x='x', y=column, s=2 ).figure)
+    x = [i + 1 for i, _ in enumerate(n.snapshots)]
+    df["x"] = x
+    st.pyplot(df.plot(kind="scatter", x="x", y=column, s=2).figure)
 
 plt.clf()
 
@@ -68,14 +70,14 @@ with b:
 
 
 with c:
-    df['Hour'] = np.arange(1, 8761) % 24
-    df.loc[df['Hour'] == 0, 'Hour'] = 24  # Adjusting so that we count hours as 1-24 instead of 0-23
-    df['Day'] = np.arange(1, 8761) // 24 + 1
+    df["Hour"] = np.arange(1, 8761) % 24
+    df.loc[df["Hour"] == 0, "Hour"] = (
+        24  # Adjusting so that we count hours as 1-24 instead of 0-23
+    )
+    df["Day"] = np.arange(1, 8761) // 24 + 1
 
     # Now, let's group by the 'Hour' column and get the average of each hour across all days
-    average_by_hour = df[[column,"Hour"]].groupby('Hour').mean()
-
-
+    average_by_hour = df[[column, "Hour"]].groupby("Hour").mean()
 
     # Assuming you've already plotted something
     plt.clf()

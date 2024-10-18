@@ -8,6 +8,31 @@ import os
 import streamlit as st
 import win32clipboard
 from PIL import Image
+import pandas as pd
+
+def load_file(filename, sheet_name):
+    """Loads an Excel file with pandas and turn the sheet into a dataframe"""
+    df = pd.read_excel(filename, sheet_name=sheet_name)
+    df = df.loc[:, ~df.columns.str.contains("Unnamed")]
+    return df
+
+
+def file_selector(folder_path, show_context):
+    """Produces a file selector of all files meeting the criteria:
+    ext = "xlsm" and
+    __setup__ is found in the filenamee
+    e.g. case_bwa\reporting_setup_and_settings_BWA.xlsm
+    """
+    filenames = os.listdir(folder_path)
+    filenames = [f for f in filenames if "xlsm" in f]
+    filenames = [f for f in filenames if "_setup_" in f]
+    if filenames:
+        selected_filename = show_context.selectbox("Select settings file", filenames)
+        return os.path.join(folder_path, selected_filename)
+    else:
+        show_context.write("No Excel settings file in directory")
+        return []
+
 
 def page_setup(page_name="PyPSA UI"):
     st.set_page_config(
@@ -68,6 +93,7 @@ def find_all_images(directory: Path) -> dict:
 
     return images_dict
 
+
 def get_package_version():
     from afripow_pypsa.Report.Report import __version__
 
@@ -97,10 +123,10 @@ def select_folder():
 def refresh_button(sidebar=True):
     if sidebar:
         if st.sidebar.button("Refresh", type="secondary", use_container_width=True):
-            st.experimental_rerun()
+            st.rerun()
     else:
         if st.button("Refresh"):
-            st.experimental_rerun()
+            st.rerun()
 
 
 def apply_cell_colors(s):
@@ -108,17 +134,22 @@ def apply_cell_colors(s):
 
 
 def find_files_containing_string(path, target_string):
-    matching_filenames = []  # List to hold names of files containing the target string in their name
+    matching_filenames = (
+        []
+    )  # List to hold names of files containing the target string in their name
     for root, dirs, files in os.walk(path):
         for file in files:
             if target_string in file:
-                matching_filenames.append(file)  # Append the filename (not path) that contains the target string
+                matching_filenames.append(
+                    file
+                )  # Append the filename (not path) that contains the target string
     return matching_filenames
 
 
 import os
 
 import os
+
 
 def list_directories_containing_results(input_path):
     """
@@ -149,9 +180,8 @@ def list_directories_containing_results(input_path):
     return directories_with_results
 
 
-
-def clip(filepath, clip_type=win32clipboard.CF_DIB ):
-    if st.button(":scissors:",  key=filepath):
+def clip(filepath, clip_type=win32clipboard.CF_DIB):
+    if st.button(":scissors:", key=filepath):
         image = Image.open(filepath)
 
         output = BytesIO()
@@ -163,4 +193,4 @@ def clip(filepath, clip_type=win32clipboard.CF_DIB ):
         win32clipboard.EmptyClipboard()
         win32clipboard.SetClipboardData(clip_type, data)
         win32clipboard.CloseClipboard()
-        st.info(f"Sent to clipboard", icon='✂️')
+        st.info(f"Sent to clipboard", icon="✂️")

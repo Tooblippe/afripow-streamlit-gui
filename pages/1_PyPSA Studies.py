@@ -6,7 +6,7 @@ import streamlit as st
 
 from pages.helpers.excess_energy_optimisation import (excess_energy_optimisation, fetch_excess_energy_parameters, )
 
-sys.path.insert(0, "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src", )
+# sys.path.insert(0, "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src", )
 
 from afripow_pypsa.toolbox.toolbox import (run_incremental_demand_expansion, run_unconstrained_expansion,
                                            run_optimum_expansion, silence_warnings, set_cplex_licence_key, )

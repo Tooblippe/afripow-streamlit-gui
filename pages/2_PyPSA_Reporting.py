@@ -2,10 +2,10 @@ import os
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0,
-    "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
-)
+# sys.path.insert(
+#     0,
+#     "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
+# )
 
 
 import pandas as pd

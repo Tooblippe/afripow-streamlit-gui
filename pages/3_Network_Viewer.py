@@ -7,10 +7,10 @@ import numpy as np
 import pypsa
 import streamlit as st
 
-sys.path.insert(
-    0,
-    "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
-)
+# sys.path.insert(
+#     0,
+#     "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
+# )
 
 
 from afripow_pypsa.helpers.direcory_cases import find_int_named_subdirs

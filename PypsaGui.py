@@ -2,17 +2,16 @@ __guiversion__ = "0.0.4"
 
 import logging
 import os
-import pdb
 import sys
 
-sys.path.insert(
-    0,
-    "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
-)
+# sys.path.insert(
+#     0,
+#     "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
+# )
 import streamlit as st
 
 # import hack
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pages.helpers.helpers import package_version, get_package_version
 

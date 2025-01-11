@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-__version__ = '0.2.161'
+__version__ = '25.1.1'
 
 
 import os
-import pdb
 import pickle
-import shutil
 from itertools import chain
 from pathlib import Path
 from typing import List
@@ -18,9 +16,6 @@ import pypsa
 from addict import Dict
 from matplotlib import pyplot as plt
 from matplotlib.pyplot import close
-import concurrent.futures
-
-from shiny.express import output
 
 from ..classes.settingsEditor import tk_tree_view
 

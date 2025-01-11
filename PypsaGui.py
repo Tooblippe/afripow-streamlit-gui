@@ -1,4 +1,4 @@
-__guiversion__ = "0.0.4"
+__guiversion__ = "25.1.1"
 
 import logging
 import os
@@ -35,6 +35,9 @@ with tab1:
     st.markdown(
         f"""
     
+    11/01/2025
+    * Combined toolbox and GUI code into one package
+    
     05/03/2024
     * Energy plot/data - Only add p0 for possitive energy values: SumP0 if P0>0
     * Added Energy Delta Plot.
@@ -65,3 +68,4 @@ with tab2:
     st.markdown("""Docs - Reporting""")
 
 st.sidebar.write(f":green[GUI version: {__guiversion__}]")
+st.sidebar.write(f":green[Toolbox version: {get_package_version()}]")

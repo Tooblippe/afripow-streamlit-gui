@@ -3,5 +3,4 @@ REM python -m pip install -i https://test.pypi.org/simple/ afripow-pypsa --upgra
 git pull
 git checkout master
 streamlit run C:\Users\apvse\OneDrive\afripow-streamlit-gui\PypsaGui.py --server.runOnSave=True --theme.primaryColor="0098FF" --logger.level=error
-
 call conda deactivate

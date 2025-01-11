@@ -37,8 +37,8 @@ with tab1:
     
     05/03/2024
     * Energy plot/data - Only add p0 for possitive energy values: SumP0 if P0>0
-    * Added Energy Delta Plot
-    * Added Capacity Delta Plot
+    * Added Energy Delta Plot.
+    * Added Capacity Delta Plot.
     * Added Copy to Clipboard function
     * Link plot colour can be spesified before report generation
     * Forced Link plots y-origin to zero if all values are possitive

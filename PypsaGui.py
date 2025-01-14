@@ -13,7 +13,7 @@ import streamlit as st
 # import hack
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from pages.helpers.helpers import package_version, get_package_version
+from pages.helpers.helpers import package_version, get_package_version, get_current_git_branch
 
 streamlit_root_logger = logging.getLogger(st.__name__)
 streamlit_root_logger.setLevel(logging.ERROR)
@@ -67,5 +67,6 @@ with tab1:
 with tab2:
     st.markdown("""Docs - Reporting""")
 
-st.sidebar.write(f":green[GUI version: {__guiversion__}]")
-st.sidebar.write(f":green[Toolbox version: {get_package_version()}]")
+st.sidebar.write(f":green[GUI version     :  {__guiversion__}]")
+st.sidebar.write(f":green[Toolbox version :  {get_package_version()}]")
+st.sidebar.write(f":green[Git branch      : {get_current_git_branch()}]")

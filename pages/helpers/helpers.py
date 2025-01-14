@@ -100,6 +100,11 @@ def get_package_version():
     return __version__
 
 
+def get_current_git_branch():
+    result = subprocess.check_output(["git", "branch", "--show-current"])
+    return result.decode("utf-8").strip()
+
+
 def package_version(sidebar=True):
     __version__ = get_package_version()
     v = f":green[Toolbox version: {__version__}]"

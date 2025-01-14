@@ -107,7 +107,12 @@ def get_current_git_branch():
 def package_version(sidebar=True):
     __version__ = get_package_version()
     st.sidebar.write(f":green[Application version :  {__version__}]")
-    st.sidebar.write(f":green[Git branch          : {get_current_git_branch()}]")
+    git_branch = get_current_git_branch()
+
+    if git_branch == 'dev':
+        st.sidebar.write(f":red[Git branch          : {get_current_git_branch()}]")
+    else:
+        st.sidebar.write(f":green[Git branch          : {get_current_git_branch()}]")
 
 
 def select_folder():

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__version__ = '25.1.1_dev'
+__version__ = '25.1.3'
 
 
 import os

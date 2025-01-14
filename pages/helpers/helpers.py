@@ -100,8 +100,11 @@ def get_package_version():
 
 
 def get_current_git_branch():
-    result = subprocess.check_output(["git", "branch", "--show-current"])
-    return result.decode("utf-8").strip()
+    try:
+        result = subprocess.check_output(["git", "branch", "--show-current"])
+        return result.decode("utf-8").strip()
+    except:
+        return "Error getting git branch"
 
 
 def package_version(sidebar=True):

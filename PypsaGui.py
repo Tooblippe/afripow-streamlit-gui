@@ -36,6 +36,10 @@ with tab1:
     st.markdown(
         f"""
     
+    14/01/2025
+    * Faster loading of image
+    * Split into production and development version
+    
     11/01/2025
     * Combined toolbox and GUI code into one package
     

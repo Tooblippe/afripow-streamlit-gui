@@ -95,8 +95,7 @@ def find_all_images(directory: Path) -> dict:
 
 
 def get_package_version():
-    from afripow_pypsa.Report.Report import __version__
-
+    from version import __version__
     return __version__
 
 
@@ -107,12 +106,8 @@ def get_current_git_branch():
 
 def package_version(sidebar=True):
     __version__ = get_package_version()
-    v = f":green[Toolbox version: {__version__}]"
-
-    if sidebar:
-        st.sidebar.write(v)
-    else:
-        st.sidebar.write(v)
+    st.sidebar.write(f":green[Application version :  {__version__}]")
+    st.sidebar.write(f":green[Git branch          : {get_current_git_branch()}]")
 
 
 def select_folder():

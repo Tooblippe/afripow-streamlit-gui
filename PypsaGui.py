@@ -1,4 +1,4 @@
-__guiversion__ = "25.1.1"
+
 
 import logging
 import os
@@ -67,6 +67,4 @@ with tab1:
 with tab2:
     st.markdown("""Docs - Reporting""")
 
-st.sidebar.write(f":green[GUI version     :  {__guiversion__}]")
-st.sidebar.write(f":green[Toolbox version :  {get_package_version()}]")
-st.sidebar.write(f":green[Git branch      : {get_current_git_branch()}]")
+package_version()

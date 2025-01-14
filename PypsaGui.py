@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+from pathlib import Path
 
 # sys.path.insert(
 #     0,
@@ -24,7 +25,7 @@ with st.container(border=True):
     c1, c2 = st.columns([1, 10])
     with c1:
         st.image(
-            "https://pypsa.readthedocs.io/en/latest/_static/pypsa-logo.png", width=100
+            Path("static/pypsa-logo.webp").__str__(), width=100
         )
 
     with c2:

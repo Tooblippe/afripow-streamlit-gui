@@ -1,4 +1,16 @@
+"""
 
+To revert changes:
+Open PyCharm
+Use Shift + Shift (Search Everywhere)
+In the popup type: Registry and press Enter
+Find "Registry" in the list of results and click on it.
+In the new popup find python.debug.asyncio.repl line and uncheck the respective checkbox
+Press Close.
+Restart the IDE.
+The asyncio support will be disabled in the debugger.
+
+"""
 
 import logging
 import os

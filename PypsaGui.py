@@ -43,7 +43,7 @@ with st.container(border=True):
     with c2:
         st.write(f"## Afripow Pypsa Management System version {get_package_version()}")
 
-tab1, tab2 = st.tabs(["Changes log", "Documents"])
+tab1, tab2 = st.tabs(["Changes 2025", "Older"])
 with tab1:
     st.markdown(
         f"""
@@ -55,7 +55,11 @@ with tab1:
     11/01/2025
     * Combined toolbox and GUI code into one package
     
-    05/03/2024
+    """
+    )
+with tab2:
+    st.markdown("""
+     05/03/2024
     * Energy plot/data - Only add p0 for possitive energy values: SumP0 if P0>0
     * Added Energy Delta Plot.
     * Added Capacity Delta Plot.
@@ -79,9 +83,6 @@ with tab1:
     * Fix reporting when no solved case in Results folder
     * Plot naming conventions linkName_plotType_year
     * Implement first version of Gui
-    """
-    )
-with tab2:
-    st.markdown("""Docs - Reporting""")
+    """)
 
 package_version()

@@ -1,0 +1,6 @@
+pywin32
+streamlit
+streamlit_extras
+easygui
+addict
+dataframe_image

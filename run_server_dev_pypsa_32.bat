@@ -1,4 +1,4 @@
-call C:\Users\apvse\anaconda3\condabin\activate.bat pypsa_v32_py311
+call C:\Users\apvse\anaconda3\condabin\activate.bat pypsa_v32_py312
 REM python -m pip install -i https://test.pypi.org/simple/ afripow-pypsa --upgrade
 git pull
 git checkout dev

@@ -43,7 +43,7 @@ with st.container(border=True):
     with c2:
         st.write(f"## Afripow Pypsa Management System version {get_package_version()}")
 
-tab1, tab2 = st.tabs(["Changes 2025", "Older"])
+tab1, tab2 = st.tabs(["Changes 2025", "Older-and this"])
 with tab1:
     st.markdown(
         f"""

@@ -188,6 +188,7 @@ if "folder_path" not in st.session_state:
     st.session_state["folder_path"] = os.getcwd()
 
 folder_select_button = ct.button("Select Project Folder", use_container_width=True)
+# TODO - remove the actualy directory below and make a variable
 if folder_select_button:
     base_dir = select_folder(start_directory=r'C:\Users\apvse\PyPSA_csv')
     st.session_state.folder_path = base_dir

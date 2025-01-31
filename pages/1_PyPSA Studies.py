@@ -32,6 +32,7 @@ if "folder_path" not in st.session_state:
 # handle study directory selection
 selected_folder_path = st.session_state.get("folder_path", None)
 folder_select_button = st_container.button("Select folder containing cases", use_container_width=True, type="primary")
+# TODO - remove the actualy directory below and make a variable
 if folder_select_button:
     base_dir = select_folder(start_directory=r'C:\Users\apvse\PyPSA_csv')
     st.session_state.folder_path = base_dir

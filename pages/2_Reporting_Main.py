@@ -189,9 +189,10 @@ if "folder_path" not in st.session_state:
 
 folder_select_button = ct.button("Select Project Folder", use_container_width=True)
 if folder_select_button:
-    base_dir = select_folder()
+    base_dir = select_folder(start_directory=r'C:\Users\apvse\PyPSA_csv')
     st.session_state.folder_path = base_dir
 base_dir = st.session_state.folder_path
+st.write(base_dir)
 
 
 # Case selection
@@ -304,6 +305,7 @@ if excel_file:
             }
         }
         print(settings_kwargs)
+
         if run_capacity_energy:
             with st.spinner("Report is running. Output in terminal window."):
                 generate_case_report(

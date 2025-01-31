@@ -121,12 +121,18 @@ def package_version(sidebar=True):
 
 
 
-def select_folder():
+def select_folder(start_directory=None):
     root = tk.Tk()
     root.lift()
     root.attributes("-topmost", True)
     root.withdraw()
-    folder_path = filedialog.askdirectory(master=root, initialdir=os.getcwd())
+
+    if start_directory:
+        initialdir = start_directory
+    else:
+        initialdir = os.getcwd()
+
+    folder_path = filedialog.askdirectory(master=root, initialdir=initialdir)
     root.destroy()
     return folder_path
 

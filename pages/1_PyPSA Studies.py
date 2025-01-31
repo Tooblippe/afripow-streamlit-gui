@@ -15,26 +15,13 @@ from afripow_pypsa.helpers.direcory_cases import find_int_named_subdirs
 
 from pages.helpers.helpers import (open_location, package_version, select_folder, refresh_button, page_setup,
                                    list_directories_with_paths, file_selector, )
+from pages.helpers.study_types import STUDY_TYPES
 
 page_setup(page_name="PyPSA Studies")
 
 silence_warnings()
 set_cplex_licence_key()
 
-STUDY_TYPES = {"1. Unconstrained Expansion"     : {"input"   : "Inputs", "output": "Results_uc",
-                                                   "function": run_unconstrained_expansion,
-                                                   "doc"     : "1) Adding Hydro Efficiency, 2) Fix Battery Capacity, 3) Add reserve constraints", },
-               "2. Optimum Expansion"           : {"input"   : "Results_uc", "output": "Results_opt",
-                                                   "function": run_optimum_expansion, "doc": "Add docs", },
-               "3. Incremental Demand Expansion": {"input"   : "Results_opt", "output": "Results_opti",
-                                                   "function": run_incremental_demand_expansion, "doc": "Add docs", },
-               # "4. Excess Energy Optimisation": {
-               #     "input": "Results_opt",
-               #     "output": "Results_opti",
-               #     "function": excess_energy_optimisation,
-               #     "doc": "Optimise Excess Energy",
-               # },
-               }
 
 st_container = st.sidebar.container(border=True)
 
@@ -46,7 +33,7 @@ if "folder_path" not in st.session_state:
 selected_folder_path = st.session_state.get("folder_path", None)
 folder_select_button = st_container.button("Select folder containing cases", use_container_width=True, type="primary")
 if folder_select_button:
-    base_dir = select_folder()
+    base_dir = select_folder(start_directory=r'C:\Users\apvse\PyPSA_csv')
     st.session_state.folder_path = base_dir
 base_dir = st.session_state.folder_path
 st_container.text(base_dir)

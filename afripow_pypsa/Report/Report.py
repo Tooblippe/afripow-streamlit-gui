@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__version__ = '25.1.3'
+__version__ = '25.1.4'
 
 
 import os
@@ -58,6 +58,7 @@ class Report:
         input_dir: str | Path = "Results",
         save_dir: str = "Report_Output",
         path_to_excel_settings: str | Path = None,
+        create_output_directories: bool = True,
     ):
         print("[ Info ] - Reporting being initialized")
         self._case_name = case_name
@@ -89,7 +90,7 @@ class Report:
         plt.style.use(self.settings.mpl_style)
 
         # create output directory and clear
-        if not self.case_output_directory().exists():
+        if not self.case_output_directory().exists() and create_output_directories:
             self.case_output_directory().mkdir()
         # else:
         #     shutil.rmtree(self.case_output_directory(), ignore_errors=True)

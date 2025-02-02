@@ -42,6 +42,7 @@ def generate_scanario_comparison_plot(
         base_directory=base_directory,
         path_to_excel_settings=path_to_excel_settings,
         input_dir=input_dir,  # e.h. path to "Input_uc"
+        create_output_directories=False
     )
 
     plot_order, colors_list = get_plot_order_colours(r.settings)
@@ -69,20 +70,22 @@ def generate_scanario_comparison_plot(
         stacked=True,
     )
 
+    # st.write(sub_df)
+
     study_stacked_bar_graph(
-        fig, ax, f"{title_prefix} {left_name} vs {right_name}", "MW"
+        fig, ax, f"{title_prefix} {left_name} vs {right_name}", y_label
     )
 
-    # set max
-    max_val = ceil(sub_df.sum(axis=1).max())
-    min_val = ceil(sub_df.sum(axis=1).min())
-    step = max_val / 5 or 500
-    step = round(step)
+    # set max and steps
+    max_val = ceil(sub_df[sub_df>0].sum(axis=1).max())
+    min_val = ceil(sub_df[sub_df<0].sum(axis=1).min())
+    step = round((max_val-min_val) / 5, -2)
     ytics_list = np.arange(min_val - step, max_val + step, step)
-    ytics_list = [round(value / 500) * 500 for value in ytics_list]
+    ytics_list = [round(value/step) * step for value in ytics_list]
     plt.yticks(ytics_list)
 
-    ax.axhline(0, color='black', linewidth=2, zorder=0)
+    # 0 line
+    ax.axhline(0, color='black', linewidth=2, zorder=0, linestyle='--')
 
     return fig, ax, sub_df
 
@@ -100,7 +103,8 @@ output_folder_name = "scenario_compare"
 folder_select_button = st_container.button("Select folder containing cases", use_container_width=True, type="primary")
 if folder_select_button:
     base_dir = Path(select_folder(start_directory=base_dir))
-    st_container.write(base_dir)
+
+st_container.write(base_dir)
 
 # handle the case directory
 input_dirs = list_directories_with_paths(Path(base_dir))
@@ -112,7 +116,7 @@ study_type =  st_container.selectbox("Select study type", STUDY_TYPES.keys())
 type_report_file_csv = st_container.selectbox("Energy Capacity", ['capacity_plot_table.csv', 'energy_plot_table.csv'])
 
 st.markdown(f"## Scenario Capacity and Energy Comparison")
-st.markdown(f"### {left_dir} vs {right_dir}")
+st.markdown(f"### {left_dir} vs. {right_dir}")
 
 
 
@@ -136,6 +140,9 @@ except FileNotFoundError:
     st.write(f"right file {right_file} not found")
     right_df = pd.DataFrame()
 
+
+mw_mwh = "MW" if "capacity" in type_report_file_csv else "MWh"
+
 if not left_df.empty and not right_df.empty:
     # drop columns for testing
     scenario_compare_plot =  generate_scanario_comparison_plot(
@@ -148,20 +155,25 @@ if not left_df.empty and not right_df.empty:
         left_dir,
         right_dir,
         "Capacity Diff:" if "capacity" in type_report_file_csv else "Energy Diff:",
-        "MW" if "capacity" in type_report_file_csv else "MWh")
+        mw_mwh
+        )
 
     st.pyplot(
        scenario_compare_plot[0], use_container_width=False)
 
-    st.write(left_df)
-    st.write(right_df)
+    # st.write(left_df)
+    # st.write(right_df)
     sub_df = left_df.sub(right_df, fill_value=0)
 
-    st.write(left_df.sub(right_df, fill_value=0))
-    st.markdown(f"## {left_dir}")
+    st.markdown(f"## Scenario comparison results data: ({mw_mwh})")
+    st.write(sub_df)
+    # st.write(left_df.sub(right_df, fill_value=0))
+    st.markdown(f"## {left_dir} (left)")
     st.bar_chart(left_df)
-    st.markdown(f"## {right_dir}")
+    st.write(left_df)
+    st.markdown(f"## {right_dir} (right)")
     st.bar_chart(right_df)
+    st.write(right_df)
 
 else:
     st.markdown(f"### Selections not valid : check study type:  *{STUDY_TYPES[study_type]['output']}*")

@@ -1,6 +1,12 @@
 pywin32
-streamlit
+streamlit~=1.41.1
 streamlit_extras
-easygui
-addict
+easygui~=0.98.3
+addict~=2.4.0
 dataframe_image
+pandas~=2.2.2
+pillow~=10.3.0
+numpy~=1.26.4
+pypsa~=0.26.3
+linopy~=0.3.10
+

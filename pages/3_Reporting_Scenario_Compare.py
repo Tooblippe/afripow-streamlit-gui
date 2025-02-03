@@ -109,12 +109,12 @@ st_container.write(base_dir)
 
 # handle the case directory
 input_dirs = list_directories_with_paths(Path(base_dir))
+study_type =  st_container.selectbox("Select study type", STUDY_TYPES.keys())
 left_dir = st_container.selectbox("Select left case", input_dirs.keys(), key="left_dir")
 right_dir = st_container.selectbox("Select right case", input_dirs.keys(), key="right_dir")
 excel_file = file_selector(Path(base_dir), st_container)
 # study type selection [unconstrained, opt, opt etc]
-study_type =  st_container.selectbox("Select study type", STUDY_TYPES.keys())
-type_report_file_csv = st_container.selectbox("Energy Capacity", ['capacity_plot_table.csv', 'energy_plot_table.csv'])
+# type_report_file_csv = st_container.selectbox("Energy Capacity", ['capacity_plot_table.csv', 'energy_plot_table.csv'])
 
 st.markdown(f"## Scenario Capacity and Energy Comparison")
 st.markdown(f"### {left_dir} vs. {right_dir}")
@@ -146,7 +146,7 @@ except FileNotFoundError:
     right_df = pd.DataFrame()
 
 
-mw_mwh = "MW" if "capacity" in type_report_file_csv else "MWh"
+# mw_mwh = "MW" if "capacity" in type_report_file_csv else "MWh"
 
 if not left_df.empty and not right_df.empty:
     # drop columns for testing
@@ -182,7 +182,7 @@ if not left_df.empty and not right_df.empty:
            scenario_compare_plot_capacity[0], use_container_width=True)
         sub_df = left_df.sub(right_df, fill_value=0)
 
-        st.markdown(f"## Scenario comparison results data: ({mw_mwh})")
+        st.markdown(f"## Scenario comparison results data: (MW)")
         st.write(sub_df)
         # st.write(left_df.sub(right_df, fill_value=0))
         st.markdown(f"## {left_dir} (left)")

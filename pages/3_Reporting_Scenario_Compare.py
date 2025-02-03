@@ -20,6 +20,7 @@ from afripow_pypsa.helpers.own_types import FigAxDF
 from pages.helpers.helpers import select_folder, list_directories_with_paths, file_selector
 from pages.helpers.study_types import STUDY_TYPES
 
+st.set_page_config(layout="wide")
 
 def generate_scanario_comparison_plot(
         case_name : str,                       # S1_No_MHPP
@@ -85,7 +86,7 @@ def generate_scanario_comparison_plot(
     plt.yticks(ytics_list)
 
     # 0 line
-    ax.axhline(0, color='black', linewidth=2, zorder=0, linestyle='--')
+    ax.axhline(0, color='black', linewidth=1, zorder=1, )
 
     return fig, ax, sub_df
 
@@ -125,19 +126,23 @@ input_reporting_dir_right = base_dir / right_dir / (report_base + STUDY_TYPES[st
 
 
 
-left_file = input_reporting_dir_left / type_report_file_csv
-right_file = input_reporting_dir_right / type_report_file_csv
+# -------------------
+left_file_capacity =  input_reporting_dir_left / "capacity_plot_table.csv"
+right_file_capacity = input_reporting_dir_right / "capacity_plot_table.csv"
+
+left_file_energy =  input_reporting_dir_left / "energy_plot_table.csv"
+right_file_energy = input_reporting_dir_right / "energy_plot_table.csv"
 
 try:
-    left_df = pd.read_csv(left_file, header=0, index_col='plant_group').transpose().sort_index()
+    left_df = pd.read_csv(left_file_capacity, header=0, index_col='plant_group').transpose().sort_index()
 except FileNotFoundError:
-    st.write(f"left file {left_file} not found")
+    st.write(f"left file {left_file_capacity} not found")
     left_df = pd.DataFrame()
 
 try:
-    right_df = pd.read_csv(right_file, header=0, index_col='plant_group').transpose().sort_index()
+    right_df = pd.read_csv(right_file_capacity, header=0, index_col='plant_group').transpose().sort_index()
 except FileNotFoundError:
-    st.write(f"right file {right_file} not found")
+    st.write(f"right file {right_file_capacity} not found")
     right_df = pd.DataFrame()
 
 
@@ -145,35 +150,55 @@ mw_mwh = "MW" if "capacity" in type_report_file_csv else "MWh"
 
 if not left_df.empty and not right_df.empty:
     # drop columns for testing
-    scenario_compare_plot =  generate_scanario_comparison_plot(
+    scenario_compare_plot_capacity =  generate_scanario_comparison_plot(
         left_dir,
         base_dir,
         excel_file,
         STUDY_TYPES[study_type]['output'],
-        left_file,
-        right_file,
+        left_file_capacity,
+        right_file_capacity,
         left_dir,
         right_dir,
-        "Capacity Diff:" if "capacity" in type_report_file_csv else "Energy Diff:",
-        mw_mwh
+        "Capacity Diff:",
+        "MW"
         )
 
-    st.pyplot(
-       scenario_compare_plot[0], use_container_width=False)
+    scenario_compare_plot_energy = generate_scanario_comparison_plot(
+        left_dir,
+        base_dir,
+        excel_file,
+        STUDY_TYPES[study_type]['output'],
+        left_file_energy,
+        right_file_energy,
+        left_dir,
+        right_dir,
+        "Energy Diff:",
+        "MWh"
+    )
+
+    capacity_column, energy_column, = st.columns(2)
+    with capacity_column:
+        st.pyplot(
+           scenario_compare_plot_capacity[0], use_container_width=True)
+        sub_df = left_df.sub(right_df, fill_value=0)
+
+        st.markdown(f"## Scenario comparison results data: ({mw_mwh})")
+        st.write(sub_df)
+        # st.write(left_df.sub(right_df, fill_value=0))
+        st.markdown(f"## {left_dir} (left)")
+        st.bar_chart(left_df)
+        st.write(left_df)
+        st.markdown(f"## {right_dir} (right)")
+        st.bar_chart(right_df)
+        st.write(right_df)
+
+    with energy_column:
+        st.pyplot(
+           scenario_compare_plot_energy[0], use_container_width=True)
 
     # st.write(left_df)
     # st.write(right_df)
-    sub_df = left_df.sub(right_df, fill_value=0)
 
-    st.markdown(f"## Scenario comparison results data: ({mw_mwh})")
-    st.write(sub_df)
-    # st.write(left_df.sub(right_df, fill_value=0))
-    st.markdown(f"## {left_dir} (left)")
-    st.bar_chart(left_df)
-    st.write(left_df)
-    st.markdown(f"## {right_dir} (right)")
-    st.bar_chart(right_df)
-    st.write(right_df)
 
 else:
     st.markdown(f"### Selections not valid : check study type:  *{STUDY_TYPES[study_type]['output']}*")

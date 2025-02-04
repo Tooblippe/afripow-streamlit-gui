@@ -197,11 +197,15 @@ def list_directories_containing_results(input_path):
     return directories_with_results
 
 
+
 def clip(filepath, clip_type=win32clipboard.CF_DIB):
-    if st.button(":scissors:", key=filepath):
+    import uuid
+
+    if st.button(":scissors:", key=uuid.uuid4()):
         image = Image.open(filepath)
 
         output = BytesIO()
+
         image.convert("RGB").save(output, "BMP")
         data = output.getvalue()[14:]
         output.close()

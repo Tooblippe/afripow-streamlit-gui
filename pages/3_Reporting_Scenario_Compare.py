@@ -93,7 +93,7 @@ def show_average_dispatch_energy_plot(case_name: str,  # S1_No_MHPP
                                       right_csv_file: Path,  #
                                       left_name: str,  #
                                       right_name: str, title_prefix: str, y_label: str, ):
-    
+    #
     fig, ax, df = generate_scanario_comparison_plot(case_name,  # S1_No_MHPP
                                                     base_directory,  # Path(r'C:\Users\apvse\PyPSA_csv\2407_MPA_csv')
                                                     path_to_excel_settings,
@@ -106,7 +106,6 @@ def show_average_dispatch_energy_plot(case_name: str,  # S1_No_MHPP
 
     path_to_images_save = base_directory / case_name / f"reporting_outputs_{input_dir}" / output_folder_name
 
-    # print(fig_dir)
     if not os.path.exists(path_to_images_save):
         # Create the directory
         os.makedirs(path_to_images_save)
@@ -133,65 +132,64 @@ st_container.write(base_dir)
 # handle the case directory
 input_dirs = list_directories_with_paths(Path(base_dir))
 study_type = st_container.selectbox("Select study type", STUDY_TYPES.keys())
-left_dir = st_container.selectbox("Select left case", input_dirs.keys(), key="left_dir")
-right_dir = st_container.selectbox("Select right case", input_dirs.keys(), key="right_dir")
+left_dir = st_container.selectbox("Select left case", input_dirs.keys(), key="left_dir", index=None)
+right_dir = st_container.selectbox("Select right case", input_dirs.keys(), key="right_dir", index=None)
 excel_file = file_selector(Path(base_dir), st_container)
-# study type selection [unconstrained, opt, opt etc]
-# type_report_file_csv = st_container.selectbox("Energy Capacity", ['capacity_plot_table.csv', 'energy_plot_table.csv'])
+
 
 st.markdown(f"## Scenario Capacity and Energy Comparison")
-st.markdown(f"### {left_dir} vs. {right_dir}")
+st.markdown(f"### {left_dir or 'Select left'} vs. {right_dir or 'Select right'}")
 
-input_reporting_dir_left = base_dir / left_dir / (report_base + STUDY_TYPES[study_type]['output'])
-input_reporting_dir_right = base_dir / right_dir / (report_base + STUDY_TYPES[study_type]['output'])
+if left_dir:
+    input_reporting_dir_left = base_dir / left_dir / (report_base + STUDY_TYPES[study_type]['output'])
+    left_file_capacity = input_reporting_dir_left / "capacity_plot_table.csv"
+    left_file_energy = input_reporting_dir_left / "energy_plot_table.csv"
 
-left_file_capacity = input_reporting_dir_left / "capacity_plot_table.csv"
-right_file_capacity = input_reporting_dir_right / "capacity_plot_table.csv"
+if right_dir:
+    input_reporting_dir_right = base_dir / right_dir / (report_base + STUDY_TYPES[study_type]['output'])
+    right_file_capacity = input_reporting_dir_right / "capacity_plot_table.csv"
+    right_file_energy = input_reporting_dir_right / "energy_plot_table.csv"
 
-left_file_energy = input_reporting_dir_left / "energy_plot_table.csv"
-right_file_energy = input_reporting_dir_right / "energy_plot_table.csv"
+if left_dir and right_dir:
+    scenario_compare_plot_capacity = show_average_dispatch_energy_plot(left_dir, base_dir, excel_file,
+                                                                       STUDY_TYPES[study_type]['output'],
+                                                                       left_file_capacity, right_file_capacity,
+                                                                       left_dir, right_dir, "Capacity Diff:", "MW")
 
-scenario_compare_plot_capacity = show_average_dispatch_energy_plot(left_dir, base_dir, excel_file,
-                                                                   STUDY_TYPES[study_type]['output'],
-                                                                   left_file_capacity, right_file_capacity, left_dir,
-                                                                   right_dir, "Capacity Diff:", "MW")
+    scenario_compare_plot_energy = show_average_dispatch_energy_plot(left_dir, base_dir, excel_file,
+                                                                     STUDY_TYPES[study_type]['output'],
+                                                                     left_file_energy, right_file_energy, left_dir,
+                                                                     right_dir, "Energy Diff:", "MWh")
 
-scenario_compare_plot_energy = show_average_dispatch_energy_plot(left_dir, base_dir, excel_file,
-                                                                 STUDY_TYPES[study_type]['output'], left_file_energy,
-                                                                 right_file_energy, left_dir, right_dir, "Energy Diff:",
-                                                                 "MWh")
-if not scenario_compare_plot_capacity[-1].empty and not scenario_compare_plot_energy[-1].empty:
-    latest, existing = st.tabs(["Current comparison", f"Existing comparisons with {left_dir}"])
-    with latest:
-        capacity_column, energy_column, = st.columns(2)
-        with capacity_column:
-            clip(scenario_compare_plot_capacity[0])
-            st.image(scenario_compare_plot_capacity[0])
-            st.write(scenario_compare_plot_capacity[-1])
+    if not scenario_compare_plot_capacity[-1].empty and not scenario_compare_plot_energy[-1].empty:
+        latest, existing = st.tabs(["Current comparison", f"Existing comparisons with {left_dir}"])
+        with latest:
+            capacity_column, energy_column, = st.columns(2)
+            with capacity_column:
+                clip(scenario_compare_plot_capacity[0])
+                st.image(scenario_compare_plot_capacity[0])
+                st.write(scenario_compare_plot_capacity[-1])
 
-        with energy_column:
-            clip(scenario_compare_plot_energy[0])
-            st.image(scenario_compare_plot_energy[0])
-            st.write(scenario_compare_plot_energy[-1])
-    with existing:
-        existing_capacity_column, existing_energy_column, = st.columns(2)
-        all_comparisons = find_files_containing_string(scenario_compare_plot_capacity[2], ".png")
-        for file_name in all_comparisons:
+            with energy_column:
+                clip(scenario_compare_plot_energy[0])
+                st.image(scenario_compare_plot_energy[0])
+                st.write(scenario_compare_plot_energy[-1])
+        with existing:
+            existing_capacity_column, existing_energy_column, = st.columns(2)
+            all_comparisons = find_files_containing_string(scenario_compare_plot_capacity[2], ".png")
+            for file_name in all_comparisons:
 
-            if "capacity" in file_name:
-                with existing_capacity_column:
-                    clip(scenario_compare_plot_capacity[2] / file_name)
-                    st.image(scenario_compare_plot_capacity[2] / file_name)
+                if "capacity" in file_name:
+                    with existing_capacity_column:
+                        clip(scenario_compare_plot_capacity[2] / file_name)
+                        st.image(scenario_compare_plot_capacity[2] / file_name)
 
-            elif "energy" in file_name:
-                with existing_energy_column:
-                    clip(scenario_compare_plot_energy[2] / file_name)
-                    st.image(scenario_compare_plot_capacity[2] / file_name)
+                elif "energy" in file_name:
+                    with existing_energy_column:
+                        clip(scenario_compare_plot_energy[2] / file_name)
+                        st.image(scenario_compare_plot_capacity[2] / file_name)
 
-
-
-
-else:
-    st.markdown(f"### Selections not valid : check study type:  *{STUDY_TYPES[study_type]['output']}*")
-    st.markdown(
-            f"### Selections not valid : check if the {left_dir} and {right_dir} have been solved and reporting run")
+    else:
+        st.markdown(f"### Selections not valid : check study type:  *{STUDY_TYPES[study_type]['output']}*")
+        st.markdown(
+                f"### Selections not valid : check if the {left_dir} and {right_dir} have been solved and reporting run")

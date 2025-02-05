@@ -156,6 +156,6 @@ if __name__ == "__main__":
         BASE_DIRECTORY / "Reporting_setup_MPA_v3.0.xlsm",
         INPUT_DIR,
         LOAD_FACTOR_DATA_FILE,
-        plot_only_these_years=["2030", "2031", "2032", "2033", "2037"],
-        plot_only_these_carriers=["Hydro", "PV", "Gas", "Diesel", "UE", "DSM"],
+        # plot_only_these_years=["2030", "2031", "2032", "2033", "2037"],
+        # plot_only_these_carriers=["Hydro", "PV", "Gas", "Diesel", "UE", "DSM"],
     )

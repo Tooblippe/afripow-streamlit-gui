@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-__version__ = '25.1.4'
+__version__ = "25.1.4"
 
 
 import os
@@ -438,8 +438,7 @@ class Report:
             decimals=1,
         )
 
-    def show_load_factor_plot(self, show_fig=False):
-        ...
+    def show_load_factor_plot(self, show_fig=False): ...
 
     # --------------------------------------------------------------------------
     def show_average_dispatch_energy_plot(self, year: int, currency_str):

@@ -6,16 +6,20 @@ import matplotlib.ticker as tkr
 # -------------------------------------------------------------------------------------
 # Function to format number with thousands separator
 def format_with_commas(value, tick_number):
-    return (f"{value:,.0f}"  # Change '.0f' to ',.2f' if you want two decimal places, etc.
+    return (
+        f"{value:,.0f}"  # Change '.0f' to ',.2f' if you want two decimal places, etc.
     )
 
 
 def format_zero_to_one(value, tick_number):
-    return (f"{value:,.02f}"  # Change '.0f' to ',.2f' if you want two decimal places, etc.
-            )
+    return (
+        f"{value:,.02f}"  # Change '.0f' to ',.2f' if you want two decimal places, etc.
+    )
 
 
-def study_stacked_bar_graph(fig: matplotlib.figure.Figure, ax, title: str, xlabel: str, custom_formatter=None) -> None:
+def study_stacked_bar_graph(
+    fig: matplotlib.figure.Figure, ax, title: str, xlabel: str, custom_formatter=None
+) -> None:
     """Just do operations on the current graph"""
 
     plt.title(title, fontsize="x-large", pad=20)
@@ -26,7 +30,14 @@ def study_stacked_bar_graph(fig: matplotlib.figure.Figure, ax, title: str, xlabe
     # Put a legend below current axis
     plt.subplots_adjust(bottom=0.30)
 
-    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.20), frameon=False, shadow=True, ncol=4, fontsize="large", )
+    ax.legend(
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.20),
+        frameon=False,
+        shadow=True,
+        ncol=4,
+        fontsize="large",
+    )
 
     # add comma
     # Create a formatter object using the custom function

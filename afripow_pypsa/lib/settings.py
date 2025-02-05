@@ -140,11 +140,11 @@ def load_settings(
                 path_to_excel_settings, sheet_name=settings.plant_plot_settings_sheet
             )
 
-            settings.xlxs_settings[
-                settings.report_study_years_setup_sheet
-            ] = pd.read_excel(
-                path_to_excel_settings,
-                sheet_name=settings.report_study_years_setup_sheet,
+            settings.xlxs_settings[settings.report_study_years_setup_sheet] = (
+                pd.read_excel(
+                    path_to_excel_settings,
+                    sheet_name=settings.report_study_years_setup_sheet,
+                )
             )
 
             settings.xlxs_settings[settings.report_link_profiles] = pd.read_excel(

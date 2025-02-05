@@ -359,9 +359,9 @@ def fix_n_minus_capacities(
 
             # old adjustment
             # p_nom_miny = nom_opt_y_1
-            current_network.df(c).loc[
-                ext_i_current, attr + "_min"
-            ] = previous_network.df(c).loc[ext_i_previous, attr + "_opt"]
+            current_network.df(c).loc[ext_i_current, attr + "_min"] = (
+                previous_network.df(c).loc[ext_i_previous, attr + "_opt"]
+            )
 
             # new adjustment
             # if not p_nom_max  -> use p_nom

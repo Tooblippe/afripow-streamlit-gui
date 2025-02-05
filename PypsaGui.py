@@ -27,7 +27,11 @@ from scipy.stats import false_discovery_control
 # import hack
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from pages.helpers.helpers import package_version, get_package_version, get_current_git_branch
+from pages.helpers.helpers import (
+    package_version,
+    get_package_version,
+    get_current_git_branch,
+)
 from pages.helpers.login_dialog import login_dialog
 
 streamlit_root_logger = logging.getLogger(st.__name__)
@@ -48,7 +52,8 @@ with st.container(border=True):
 
 tab1, tab2 = st.tabs(["Changes 2025", "Older"])
 with tab1:
-    st.markdown(f"""
+    st.markdown(
+        f"""
     4/02/2025 
     * Addition of Scenarion Comparison
     
@@ -59,9 +64,11 @@ with tab1:
     11/01/2025
     * Combined toolbox and GUI code into one package
     
-    """)
+    """
+    )
 with tab2:
-    st.markdown("""
+    st.markdown(
+        """
      05/03/2024
     * Energy plot/data - Only add p0 for possitive energy values: SumP0 if P0>0
     * Added Energy Delta Plot.
@@ -86,6 +93,7 @@ with tab2:
     * Fix reporting when no solved case in Results folder
     * Plot naming conventions linkName_plotType_year
     * Implement first version of Gui
-    """)
+    """
+    )
 
 package_version()

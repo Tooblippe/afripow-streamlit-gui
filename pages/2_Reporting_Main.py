@@ -23,10 +23,21 @@ from afripow_pypsa.toolbox.toolbox import (
 from streamlit_extras.stylable_container import stylable_container
 
 
-from pages.helpers.helpers import (open_location, package_version, select_folder, refresh_button, page_setup,
-                                   list_directories_with_paths, find_all_images, apply_cell_colors, clip,
-                                   find_files_containing_string, list_directories_containing_results, load_file,
-                                   file_selector, )
+from pages.helpers.helpers import (
+    open_location,
+    package_version,
+    select_folder,
+    refresh_button,
+    page_setup,
+    list_directories_with_paths,
+    find_all_images,
+    apply_cell_colors,
+    clip,
+    find_files_containing_string,
+    list_directories_containing_results,
+    load_file,
+    file_selector,
+)
 
 
 page_setup(page_name="PyPSA Reporting")
@@ -190,7 +201,7 @@ if "folder_path" not in st.session_state:
 folder_select_button = ct.button("Select Project Folder", use_container_width=True)
 # TODO - remove the actualy directory below and make a variable
 if folder_select_button:
-    base_dir = select_folder(start_directory=r'C:\Users\apvse\PyPSA_csv')
+    base_dir = select_folder(start_directory=r"C:\Users\apvse\PyPSA_csv")
     st.session_state.folder_path = base_dir
 base_dir = st.session_state.folder_path
 st.write(base_dir)
@@ -237,15 +248,11 @@ if excel_file:
 
     with C2:
         with st.container(border=True):
-            if st.button(
-                "Settings file", use_container_width=True, type="primary"
-            ):
+            if st.button("Settings file", use_container_width=True, type="primary"):
                 open_location(excel_file)
             if st.button("Base dir", use_container_width=True, type="primary"):
                 open_location(Path(base_dir))
-            if st.button(
-                "Results dir", use_container_width=True, type="primary"
-            ):
+            if st.button("Results dir", use_container_width=True, type="primary"):
                 open_location(results_folder)
             link_plot_color = st.text_input("Link plot color.", "#4472C4")
             currency = st.selectbox("Marginal Price - Y-axis unit", ["$/MWh", "R/MWh"])

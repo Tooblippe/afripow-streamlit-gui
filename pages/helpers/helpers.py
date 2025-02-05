@@ -10,6 +10,7 @@ import win32clipboard
 from PIL import Image
 import pandas as pd
 
+
 def load_file(filename, sheet_name):
     """Loads an Excel file with pandas and turn the sheet into a dataframe"""
     df = pd.read_excel(filename, sheet_name=sheet_name)
@@ -96,6 +97,7 @@ def find_all_images(directory: Path) -> dict:
 
 def get_package_version():
     from version import __version__
+
     return __version__
 
 
@@ -111,14 +113,14 @@ def package_version(sidebar=True):
     __version__ = get_package_version()
     st.sidebar.write(f":green[Application version :  {__version__}]")
     from pypsa import __version__ as pypsa_version
+
     st.sidebar.write(f":green[PyPSA version      :  {pypsa_version}]")
     git_branch = get_current_git_branch()
 
-    if git_branch == 'dev':
+    if git_branch == "dev":
         st.sidebar.write(f":red[Git branch          : {get_current_git_branch()}]")
     else:
         st.sidebar.write(f":green[Git branch        : {get_current_git_branch()}]")
-
 
 
 def select_folder(start_directory=None):
@@ -195,7 +197,6 @@ def list_directories_containing_results(input_path):
         print(f"An error occurred: {e}")
 
     return directories_with_results
-
 
 
 def clip(filepath, clip_type=win32clipboard.CF_DIB):

@@ -4,7 +4,7 @@ from huey import RedisHuey, SqliteHuey, crontab
 from fastapi import FastAPI
 from huey.signals import SIGNAL_ERROR, SIGNAL_COMPLETE
 
-huey = SqliteHuey('my-app')
+huey = SqliteHuey("my-app")
 app = FastAPI()
 
 n = 1
@@ -20,6 +20,7 @@ n = 1
 #     if signal == SIGNAL_COMPLETE:
 #         print(f"Task is complete.")
 
+
 @huey.task()
 def run_cplex_solver(value, write_out):
     time.sleep(1)
@@ -31,7 +32,7 @@ def run_cplex_solver(value, write_out):
 def do_excel_write_out(d):
     time.sleep(1)
     print("Updating Excel")
-    d['write_out'] = d['value'] + d['value']
+    d["write_out"] = d["value"] + d["value"]
     print(d)
     return dict(d)
 

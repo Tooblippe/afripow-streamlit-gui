@@ -9,4 +9,5 @@ pillow~=10.3.0
 numpy~=1.26.4
 pypsa~=0.26.3
 linopy~=0.3.10
+huey~=2.5.2
 

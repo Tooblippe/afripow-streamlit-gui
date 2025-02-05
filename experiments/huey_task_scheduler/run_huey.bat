@@ -1,0 +1,1 @@
+huey_consumer test_task.huey

@@ -84,7 +84,7 @@ def generate_scanario_comparison_plot(case_name: str,  # S1_No_MHPP
     return fig, ax, sub_df
 
 
-def show_average_dispatch_energy_plot(case_name: str,  # S1_No_MHPP
+def show_scanario_comparison_plot(case_name: str,  # S1_No_MHPP
                                       base_directory: Path,  # Path(r'C:\Users\apvse\PyPSA_csv\2407_MPA_csv')
                                       path_to_excel_settings: Path,
                                       # Path(r'C:\Users\apvse\PyPSA_csv\2407_MPA_csv\Reporting_setup_MPA_v3.0.xlsm')
@@ -151,12 +151,12 @@ if right_dir:
     right_file_energy = input_reporting_dir_right / "energy_plot_table.csv"
 
 if left_dir and right_dir:
-    scenario_compare_plot_capacity = show_average_dispatch_energy_plot(left_dir, base_dir, excel_file,
+    scenario_compare_plot_capacity = show_scanario_comparison_plot(left_dir, base_dir, excel_file,
                                                                        STUDY_TYPES[study_type]['output'],
                                                                        left_file_capacity, right_file_capacity,
                                                                        left_dir, right_dir, "Capacity Diff:", "MW")
 
-    scenario_compare_plot_energy = show_average_dispatch_energy_plot(left_dir, base_dir, excel_file,
+    scenario_compare_plot_energy = show_scanario_comparison_plot(left_dir, base_dir, excel_file,
                                                                      STUDY_TYPES[study_type]['output'],
                                                                      left_file_energy, right_file_energy, left_dir,
                                                                      right_dir, "Energy Diff:", "MWh")

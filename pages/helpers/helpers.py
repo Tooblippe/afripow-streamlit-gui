@@ -11,6 +11,10 @@ from PIL import Image
 import pandas as pd
 
 
+def get_startup_directory():
+    return Path(r"C:\Users\apvse\PyPSA_csv")
+
+
 def load_file(filename, sheet_name):
     """Loads an Excel file with pandas and turn the sheet into a dataframe"""
     df = pd.read_excel(filename, sheet_name=sheet_name)

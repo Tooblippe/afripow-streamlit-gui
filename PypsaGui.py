@@ -31,6 +31,8 @@ from pages.helpers.helpers import (
     package_version,
     get_package_version,
     get_current_git_branch,
+    list_directories_with_paths,
+    get_startup_directory,
 )
 from pages.helpers.login_dialog import login_dialog
 
@@ -41,6 +43,11 @@ st.set_page_config(page_title="PypsaGui", page_icon="📈", layout="wide")
 
 # if not st.session_state.get("logged_in", False):
 #     login_dialog()
+
+
+for i in list_directories_with_paths(get_startup_directory()):
+    st.write(i)
+
 
 with st.container(border=True):
     c1, c2 = st.columns([1, 10])

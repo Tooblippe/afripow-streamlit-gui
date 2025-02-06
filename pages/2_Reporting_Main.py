@@ -37,6 +37,7 @@ from pages.helpers.helpers import (
     list_directories_containing_results,
     load_file,
     file_selector,
+    get_startup_directory,
 )
 
 
@@ -198,10 +199,9 @@ ct = st.sidebar.container(border=True)
 if "folder_path" not in st.session_state:
     st.session_state["folder_path"] = os.getcwd()
 
-folder_select_button = ct.button("Select Project Folder", use_container_width=True)
-# TODO - remove the actualy directory below and make a variable
+folder_select_button = ct.button("Select project folder", use_container_width=True)
 if folder_select_button:
-    base_dir = select_folder(start_directory=r"C:\Users\apvse\PyPSA_csv")
+    base_dir = select_folder(start_directory=get_startup_directory())
     st.session_state.folder_path = base_dir
 base_dir = st.session_state.folder_path
 st.write(base_dir)

@@ -174,7 +174,7 @@ def make_page():
 
     # Select the base project folder
     folder_select_button = st_container.button(
-        "Select folder containing cases", use_container_width=True, type="primary"
+        "Select project folder", use_container_width=True, type="primary"
     )
     if folder_select_button:
         base_dir = Path(select_folder(start_directory=base_dir))

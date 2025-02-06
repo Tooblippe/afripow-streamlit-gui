@@ -29,6 +29,7 @@ from pages.helpers.helpers import (
     page_setup,
     list_directories_with_paths,
     file_selector,
+    get_startup_directory,
 )
 from pages.helpers.study_types import STUDY_TYPES
 
@@ -47,11 +48,11 @@ if "folder_path" not in st.session_state:
 # handle study directory selection
 selected_folder_path = st.session_state.get("folder_path", None)
 folder_select_button = st_container.button(
-    "Select folder containing cases", use_container_width=True, type="primary"
+    "Select project folder", use_container_width=True, type="primary"
 )
 # TODO - remove the actualy directory below and make a variable
 if folder_select_button:
-    base_dir = select_folder(start_directory=r"C:\Users\apvse\PyPSA_csv")
+    base_dir = select_folder(start_directory=get_startup_directory())
     st.session_state.folder_path = base_dir
 base_dir = st.session_state.folder_path
 st_container.text(base_dir)

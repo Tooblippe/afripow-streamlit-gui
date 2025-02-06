@@ -24,6 +24,7 @@ from pages.helpers.helpers import (
     file_selector,
     clip,
     find_files_containing_string,
+    get_startup_directory,
 )
 from pages.helpers.study_types import STUDY_TYPES
 
@@ -185,10 +186,10 @@ st_container = st.sidebar.container(border=True)
 
 # Select the base project folder
 folder_select_button = st_container.button(
-    "Select folder containing cases", use_container_width=True, type="primary"
+    "Select project folder", use_container_width=True, type="primary"
 )
 if folder_select_button:
-    base_dir = Path(select_folder(start_directory=base_dir))
+    base_dir = Path(select_folder(start_directory=get_startup_directory()))
 
 st_container.write(base_dir)
 

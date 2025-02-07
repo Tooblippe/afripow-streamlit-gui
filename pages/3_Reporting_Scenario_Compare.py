@@ -31,7 +31,7 @@ from pages.helpers.study_types import STUDY_TYPES
 st.set_page_config(layout="wide")
 
 # Initial variables
-base_dir = Path(r"C:\Users\apvse\PyPSA_csv\2407_MPA_csv")
+BASE_DIR = Path(r"C:\Users\apvse\PyPSA_csv\2407_MPA_csv")
 report_base = r"reporting_outputs_"
 capacity_data_file = "capacity_plot_table.csv"
 energy_data_file = "energy_plot_table.csv"
@@ -189,12 +189,12 @@ folder_select_button = st_container.button(
     "Select project folder", use_container_width=True, type="primary"
 )
 if folder_select_button:
-    base_dir = Path(select_folder(start_directory=get_startup_directory()))
+    BASE_DIR = Path(select_folder(start_directory=get_startup_directory()))
 
-st_container.write(base_dir)
+st_container.write(BASE_DIR)
 
 # handle the case directory
-input_dirs = list_directories_with_paths(Path(base_dir))
+input_dirs = list_directories_with_paths(Path(BASE_DIR))
 study_type = st_container.selectbox("Select study type", STUDY_TYPES.keys())
 left_dir = st_container.selectbox(
     "Select left case", input_dirs.keys(), key="left_dir", index=None
@@ -202,7 +202,7 @@ left_dir = st_container.selectbox(
 right_dir = st_container.selectbox(
     "Select right case", input_dirs.keys(), key="right_dir", index=None
 )
-excel_file = file_selector(Path(base_dir), st_container)
+excel_file = file_selector(Path(BASE_DIR), st_container)
 
 
 st.markdown(f"## Scenario Capacity and Energy Comparison")
@@ -210,14 +210,14 @@ st.markdown(f"### {left_dir or 'Select left'} vs. {right_dir or 'Select right'}"
 
 if left_dir:
     input_reporting_dir_left = (
-        base_dir / left_dir / (report_base + STUDY_TYPES[study_type]["output"])
+        BASE_DIR / left_dir / (report_base + STUDY_TYPES[study_type]["output"])
     )
     left_file_capacity = input_reporting_dir_left / "capacity_plot_table.csv"
     left_file_energy = input_reporting_dir_left / "energy_plot_table.csv"
 
 if right_dir:
     input_reporting_dir_right = (
-        base_dir / right_dir / (report_base + STUDY_TYPES[study_type]["output"])
+        BASE_DIR / right_dir / (report_base + STUDY_TYPES[study_type]["output"])
     )
     right_file_capacity = input_reporting_dir_right / "capacity_plot_table.csv"
     right_file_energy = input_reporting_dir_right / "energy_plot_table.csv"
@@ -225,7 +225,7 @@ if right_dir:
 if left_dir and right_dir:
     scenario_compare_plot_capacity = show_scanario_comparison_plot(
         left_dir,
-        base_dir,
+        BASE_DIR,
         excel_file,
         STUDY_TYPES[study_type]["output"],
         left_file_capacity,
@@ -238,7 +238,7 @@ if left_dir and right_dir:
 
     scenario_compare_plot_energy = show_scanario_comparison_plot(
         left_dir,
-        base_dir,
+        BASE_DIR,
         excel_file,
         STUDY_TYPES[study_type]["output"],
         left_file_energy,
@@ -262,12 +262,12 @@ if left_dir and right_dir:
                 energy_column,
             ) = st.columns(2)
             with capacity_column:
-                clip(scenario_compare_plot_capacity[0])
+                clip(Path(scenario_compare_plot_capacity[0]))
                 st.image(scenario_compare_plot_capacity[0])
                 st.write(scenario_compare_plot_capacity[-1])
 
             with energy_column:
-                clip(scenario_compare_plot_energy[0])
+                clip(Path(scenario_compare_plot_energy[0]))
                 st.image(scenario_compare_plot_energy[0])
                 st.write(scenario_compare_plot_energy[-1])
         with existing:

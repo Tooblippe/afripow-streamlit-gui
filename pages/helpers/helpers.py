@@ -4,11 +4,12 @@ import tkinter as tk
 from io import BytesIO
 from pathlib import Path
 from tkinter import filedialog
-import os
+import uuid
 import streamlit as st
 import win32clipboard
 from PIL import Image
 import pandas as pd
+import os
 
 
 def get_startup_directory():
@@ -169,11 +170,6 @@ def find_files_containing_string(path, target_string):
     return matching_filenames
 
 
-import os
-
-import os
-
-
 def list_directories_containing_results(input_path):
     """
     List all directories within the given input path that contain the string "Results_" in their name.
@@ -203,12 +199,19 @@ def list_directories_containing_results(input_path):
     return directories_with_results
 
 
+if "click_tracker" not in st.session_state:
+    st.session_state.click_tracker = False
+
+
+def click_tracker():
+    st.session_state.click_tracker = True
+
+
 def clip(filepath, clip_type=win32clipboard.CF_DIB):
-    import uuid
-
-    if st.button(":scissors:", key=uuid.uuid4()):
+    st.button(":scissors:", key=uuid.uuid4(), on_click=click_tracker)
+    if st.session_state.click_tracker:
         image = Image.open(filepath)
-
+        st.write(image)
         output = BytesIO()
 
         image.convert("RGB").save(output, "BMP")
@@ -220,3 +223,4 @@ def clip(filepath, clip_type=win32clipboard.CF_DIB):
         win32clipboard.SetClipboardData(clip_type, data)
         win32clipboard.CloseClipboard()
         st.info(f"Sent to clipboard", icon="✂️")
+        st.session_state.click_tracker = False

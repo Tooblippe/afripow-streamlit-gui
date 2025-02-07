@@ -52,13 +52,13 @@ folder_select_button = st_container.button(
 )
 # TODO - remove the actualy directory below and make a variable
 if folder_select_button:
-    base_dir = select_folder(start_directory=get_startup_directory())
-    st.session_state.folder_path = base_dir
-base_dir = st.session_state.folder_path
-st_container.text(base_dir)
+    BASE_DIR = select_folder(start_directory=get_startup_directory())
+    st.session_state.folder_path = BASE_DIR
+BASE_DIR = st.session_state.folder_path
+st_container.text(BASE_DIR)
 
 # handle the case directory
-input_dirs = list_directories_with_paths(Path(base_dir))
+input_dirs = list_directories_with_paths(Path(BASE_DIR))
 start_dir = st_container.selectbox(
     "Select case",
     input_dirs.keys(),
@@ -68,7 +68,7 @@ start_dir = st_container.selectbox(
 study_type = st_container.selectbox("Select study type", STUDY_TYPES.keys())
 
 # process inputs and show available years in case folder
-years_in_directory = find_int_named_subdirs(Path(base_dir) / start_dir)
+years_in_directory = find_int_named_subdirs(Path(BASE_DIR) / start_dir)
 
 years = st_container.multiselect(
     f"Study years found in {start_dir}",
@@ -83,7 +83,7 @@ years = st_container.multiselect(
 # Main screen
 st.write(f"## {study_type}")
 
-base_dir = st.session_state.folder_path
+BASE_DIR = st.session_state.folder_path
 load_from_dir = STUDY_TYPES[study_type]["input"]
 save_to_dir = STUDY_TYPES[study_type]["output"]
 doc = STUDY_TYPES[study_type]["doc"]
@@ -94,7 +94,7 @@ setttings_file = None
 if study_type != "4. Excess Energy Optimisation":
     st.table(
         pd.DataFrame(
-            [doc, base_dir, start_dir, load_from_dir, save_to_dir, years],
+            [doc, BASE_DIR, start_dir, load_from_dir, save_to_dir, years],
             columns=["Value"],
             index=[
                 "Study description",
@@ -107,14 +107,14 @@ if study_type != "4. Excess Energy Optimisation":
         )
     )
 else:
-    setttings_file = file_selector(Path(base_dir), st)
+    setttings_file = file_selector(Path(BASE_DIR), st)
     if setttings_file:
         excess_params = fetch_excess_energy_parameters(setttings_file)
         st.table(
             pd.DataFrame(
                 [
                     doc,
-                    base_dir,
+                    BASE_DIR,
                     start_dir,
                     load_from_dir,
                     save_to_dir,
@@ -144,7 +144,7 @@ else:
 
 # open case folder
 if st.button("Open Case Directory", type="primary"):
-    open_location(Path(base_dir) / start_dir)
+    open_location(Path(BASE_DIR) / start_dir)
 
 # run button
 refresh_button()
@@ -156,7 +156,7 @@ if run_button:
     with st.spinner("Report is running. Output in terminal window."):
         f = STUDY_TYPES[study_type]["function"]
         f(
-            base_dir / Path(start_dir),
+            BASE_DIR / Path(start_dir),
             [str(y) for y in years],
             load_from_dir,
             save_to_dir,

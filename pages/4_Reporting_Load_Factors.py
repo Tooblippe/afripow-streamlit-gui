@@ -33,10 +33,11 @@ st.set_page_config(layout="wide")
 
 
 # Initial variables
-base_dir = Path(r"C:\Users\apvse\PyPSA_csv\2407_MPA_csv")
-report_base = r"reporting_outputs_"
-output_folder_name = ""
+BASE_DIR = Path(r"C:\Users\apvse\PyPSA_csv\2407_MPA_csv")
+REPORT_BASE = r"reporting_outputs_"
+OUTPUT_FOLDER_NAME = ""
 LOAD_FACTOR_DATA_FILE = Path("load_factor_plot_table.csv")
+LOAD_FACTOR_IMAGE_OUTPUT_FILE = Path("load_factor_plot_image.png")
 RESULTS_DIR = "reporting_outputs_"
 
 
@@ -49,6 +50,7 @@ def generate_load_factor_plot(
     plot_only_these_carriers=None,
     plot_only_these_years=None,
     show_values=True,
+    limit=None,
 ) -> FigAxDF:
     """
     This function creates the fig and df objects for the graph. It does not do any saving
@@ -94,6 +96,11 @@ def generate_load_factor_plot(
     plot_order, colors_list = remove_missing_links(
         df, plot_order, colors_list, debug=False
     )
+
+    # apply limits
+    if limit:
+        mask = df <= limit
+        df = df[mask]
 
     # make the plot
     df.plot(ax=ax, kind="bar", width=0.8, color=colors_list)
@@ -147,6 +154,7 @@ def show_load_factor_plot(
     plot_only_these_carriers=None,
     plot_only_these_years=None,
     show_values=True,
+    limit=None,
 ):
     """
     This functioj requests the fig and dataframe obkects and decides how to save it.
@@ -162,12 +170,23 @@ def show_load_factor_plot(
         plot_only_these_carriers,
         plot_only_these_years,
         show_values=show_values,
+        limit=limit,
     )
-    return fig, ax, df
+
+    path_to_figure = (
+        base_directory
+        / case_name
+        / f"reporting_outputs_{STUDY_TYPES[input_dir]['output']}"
+        / LOAD_FACTOR_IMAGE_OUTPUT_FILE
+    )
+
+    fig.savefig(path_to_figure)
+
+    return fig, ax, df, path_to_figure
 
 
 def make_page():
-    global base_dir
+    global BASE_DIR
     global RESULTS_DIR
 
     st_container = st.sidebar.container(border=True)
@@ -177,27 +196,27 @@ def make_page():
         "Select project folder", use_container_width=True, type="primary"
     )
     if folder_select_button:
-        base_dir = Path(select_folder(start_directory=base_dir))
+        BASE_DIR = Path(select_folder(start_directory=BASE_DIR))
 
-    st_container.write(base_dir)
+    st_container.write(BASE_DIR)
 
     # handle the case directory
-    input_dirs = list_directories_with_paths(Path(base_dir))
+    input_dirs = list_directories_with_paths(Path(BASE_DIR))
     study_type = st_container.selectbox("Select study type", STUDY_TYPES.keys())
     left_dir = st_container.selectbox(
         "Select left case", input_dirs.keys(), key="left_dir", index=None
     )
 
-    excel_file = file_selector(Path(base_dir), st_container)
+    excel_file = file_selector(Path(BASE_DIR), st_container)
 
-    st.markdown(f"## Load Factor plots")
+    st.markdown(f"## Load factor plot")
 
     tabCurrent, tabCompleted = st.tabs(["Current", "Completed"])
     with tabCurrent:
         try:
-            fig, ax, df = show_load_factor_plot(
+            fig, ax, df, _ = show_load_factor_plot(
                 left_dir,
-                base_dir,
+                BASE_DIR,
                 excel_file,
                 study_type,
                 LOAD_FACTOR_DATA_FILE,
@@ -211,21 +230,25 @@ def make_page():
                 columns = st.multiselect(
                     "Select columns", df.columns, default=df.columns
                 )
+                limit = int(st.slider("Load factor threshold", 0, 100, 100, 1)) / 100
 
             with col2:
-                fig, ax, df = show_load_factor_plot(
+                fig, ax, df, path_to_figure = show_load_factor_plot(
                     left_dir,
-                    base_dir,
+                    BASE_DIR,
                     excel_file,
                     study_type,
                     LOAD_FACTOR_DATA_FILE,
                     plot_only_these_years=years,
                     plot_only_these_carriers=columns,
                     show_values=show_values,
+                    limit=limit,
                 )
-                st.pyplot(fig, use_container_width=False)
-        except:
-            st.write("Selection combinations not valid")
+                clip(path_to_figure)
+
+                st.pyplot(fig)
+        except Exception as e:
+            st.exception(e)
 
     with tabCompleted:
         st.write("Add completed images here")

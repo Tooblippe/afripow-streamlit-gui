@@ -47,30 +47,6 @@ set_cplex_licence_key()
 st.write(f"## PyPSA Reporting")
 
 
-# def load_file(filename, sheet_name):
-#     """Loads a Excel file with pandas and turn the sheet into a dataframe"""
-#     df = pd.read_excel(filename, sheet_name=sheet_name)
-#     df = df.loc[:, ~df.columns.str.contains("Unnamed")]
-#     return df
-#
-#
-# def file_selector(folder_path, show_context):
-#     """Produces a file selector of all files meeting the criteria:
-#     ext = "xlsm" and
-#     __setup__ is found in the filenamee
-#     e.g. case_bwa\reporting_setup_and_settings_BWA.xlsm
-#     """
-#     filenames = os.listdir(folder_path)
-#     filenames = [f for f in filenames if "xlsm" in f]
-#     filenames = [f for f in filenames if "_setup_" in f]
-#     if filenames:
-#         selected_filename = show_context.selectbox("Select settings file", filenames)
-#         return os.path.join(folder_path, selected_filename)
-#     else:
-#         show_context.write("No Excel settings file in directory")
-#         return []
-
-
 def show_image(image_path):
     try:
         image = Image.open(image_path)
@@ -126,8 +102,8 @@ def excel_tabs(results_folder: Path):
     with setup:
         st.table(
             data={
-                "Project Directory": Path(base_dir),
-                "Path to case": Path(base_dir) / Path(start_dir),
+                "Project Directory": Path(BASE_DIR),
+                "Path to case": Path(BASE_DIR) / Path(start_dir),
                 "Path to Excel file": excel_file,
                 "Study Years Selected In Excel File": str(study_years),
                 "Inputs directory (load from)": study_type,
@@ -201,20 +177,20 @@ if "folder_path" not in st.session_state:
 
 folder_select_button = ct.button("Select project folder", use_container_width=True)
 if folder_select_button:
-    base_dir = select_folder(start_directory=get_startup_directory())
-    st.session_state.folder_path = base_dir
-base_dir = st.session_state.folder_path
-st.write(base_dir)
+    BASE_DIR = select_folder(start_directory=get_startup_directory())
+    st.session_state.folder_path = BASE_DIR
+BASE_DIR = st.session_state.folder_path
+st.write(BASE_DIR)
 
 
 # Case selection
-input_dirs = list_directories_with_paths(Path(base_dir))
+input_dirs = list_directories_with_paths(Path(BASE_DIR))
 start_dir = ct.selectbox(
     "Select case", [d for d in input_dirs.keys() if "__pycache__" not in d]
 )
 
 # Search for Excel file file
-excel_file = file_selector(Path(base_dir), ct)
+excel_file = file_selector(Path(BASE_DIR), ct)
 
 study_type = None
 study_years = []
@@ -229,14 +205,14 @@ if excel_file:
     study_type = ct.selectbox(
         "Select input folder",
         list_directories_containing_results(
-            Path(base_dir) / Path(start_dir) / str(study_years[0])
+            Path(BASE_DIR) / Path(start_dir) / str(study_years[0])
         ),
     )
 
 
 if study_type:
     results_folder = (
-        Path(base_dir) / Path(start_dir) / Path("reporting_outputs_" + study_type)
+        Path(BASE_DIR) / Path(start_dir) / Path("reporting_outputs_" + study_type)
     )
 
     if not os.path.exists(results_folder):
@@ -251,7 +227,7 @@ if excel_file:
             if st.button("Settings file", use_container_width=True, type="primary"):
                 open_location(excel_file)
             if st.button("Base dir", use_container_width=True, type="primary"):
-                open_location(Path(base_dir))
+                open_location(Path(BASE_DIR))
             if st.button("Results dir", use_container_width=True, type="primary"):
                 open_location(results_folder)
             link_plot_color = st.text_input("Link plot color.", "#4472C4")
@@ -271,7 +247,7 @@ if excel_file:
         with st.container(border=True):
             excel_tabs(results_folder)
 
-    base_dir = st.session_state.folder_path
+    BASE_DIR = st.session_state.folder_path
 
     # Input summary
 
@@ -319,7 +295,7 @@ if excel_file:
                 generate_case_report(
                     start_dir,
                     excel_file,
-                    Path(base_dir) / Path(start_dir),
+                    Path(BASE_DIR) / Path(start_dir),
                     study_type,
                     reports_to_run=["CAPACITY_ENERGY"],
                     link_plot_color=link_plot_color,
@@ -334,7 +310,7 @@ if excel_file:
                 generate_case_report(
                     start_dir,
                     excel_file,
-                    Path(base_dir) / Path(start_dir),
+                    Path(BASE_DIR) / Path(start_dir),
                     study_type,
                     reports_to_run=["LINK_PROFILES"],
                     link_plot_color=link_plot_color,

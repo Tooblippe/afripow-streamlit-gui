@@ -203,12 +203,12 @@ if "click_tracker" not in st.session_state:
     st.session_state.click_tracker = False
 
 
-def click_tracker():
-    st.session_state.click_tracker = True
-
-
 def clip(filepath, clip_type=win32clipboard.CF_DIB):
-    st.button(":scissors:", key=uuid.uuid4(), on_click=click_tracker)
+    st.button(
+        ":scissors:",
+        key=uuid.uuid4(),
+        on_click=lambda: st.session_state.update({"click_tracker": True}),
+    )
     if st.session_state.click_tracker:
         image = Image.open(filepath)
         st.write(image)

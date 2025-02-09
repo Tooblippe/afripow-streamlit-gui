@@ -25,13 +25,16 @@ from pages.helpers.helpers import (
     clip,
     find_files_containing_string,
     get_startup_directory,
+    base_directory_input,
+    case_directory_input,
+    study_type_input,
 )
 from pages.helpers.study_types import STUDY_TYPES
 
 st.set_page_config(layout="wide")
 
 # Initial variables
-BASE_DIR = Path(r"C:\Users\apvse\PyPSA_csv\2407_MPA_csv")
+# BASE_DIR = Path(r"C:\Users\apvse\PyPSA_csv\2407_MPA_csv")
 report_base = r"reporting_outputs_"
 capacity_data_file = "capacity_plot_table.csv"
 energy_data_file = "energy_plot_table.csv"
@@ -184,26 +187,23 @@ def show_scanario_comparison_plot(
 
 st_container = st.sidebar.container(border=True)
 
-# Select the base project folder
-folder_select_button = st_container.button(
-    "Select project folder", use_container_width=True, type="primary"
-)
-if folder_select_button:
-    BASE_DIR = Path(select_folder(start_directory=get_startup_directory()))
 
-st_container.write(BASE_DIR)
+BASE_DIR = base_directory_input(st_container)
 
 # handle the case directory
-input_dirs = list_directories_with_paths(Path(BASE_DIR))
-study_type = st_container.selectbox("Select study type", STUDY_TYPES.keys())
+input_dirs = list_directories_with_paths(Path(BASE_DIR)).keys()
+input_dirs = [k for k in input_dirs if "report" not in k]
+study_type = study_type_input(st_container)
+
 left_dir = st_container.selectbox(
-    "Select left case", input_dirs.keys(), key="left_dir", index=None
+    "Select left case", input_dirs, key="left_dir", index=None
 )
 right_dir = st_container.selectbox(
-    "Select right case", input_dirs.keys(), key="right_dir", index=None
+    "Select right case", input_dirs, key="right_dir", index=None
 )
-excel_file = file_selector(Path(BASE_DIR), st_container)
 
+
+excel_file = file_selector(Path(BASE_DIR), st_container, setting_key="excel_file")
 
 st.markdown(f"## Scenario Capacity and Energy Comparison")
 st.markdown(f"### {left_dir or 'Select left'} vs. {right_dir or 'Select right'}")

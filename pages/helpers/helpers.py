@@ -11,7 +11,57 @@ from PIL import Image
 import pandas as pd
 import os
 
-from pages.helpers.user_settings_db import get_setting, who_is_working
+from pages.helpers.study_types import STUDY_TYPES
+from pages.helpers.user_settings_db import (
+    get_setting,
+    who_is_working,
+    set_setting_for_current_user,
+    get_setting_for_current_user,
+)
+
+
+def short_string(input_str, s, e):
+    start = input[:s]
+    end = input[e:]
+    return f"{start}[..]{end}"
+
+
+def base_directory_input(
+    st_container,
+):
+    # handle study directory selection
+    folder_select_button = st_container.button(
+        "Select project folder", use_container_width=True, type="primary"
+    )
+    if folder_select_button:
+        startup_directory = select_folder(start_directory=get_startup_directory())
+        set_setting_for_current_user("startup_directory", startup_directory)
+
+    BASE_DIR = get_startup_directory() / get_setting_for_current_user("base_project")
+    st_container.text(f"Current: {BASE_DIR.name}")
+    return BASE_DIR
+
+
+def case_directory_input(st_container, BASE_DIR):
+    input_dirs = list_directories_with_paths(Path(BASE_DIR)).keys()
+    input_dirs = [k for k in input_dirs if "reporting" not in k]
+    start_dir = st_container.selectbox(
+        "Select case",
+        input_dirs,
+        index=get_index_of_setting(list(input_dirs), "case"),
+    )
+    set_setting_for_current_user("case", start_dir)
+    return start_dir
+
+
+def study_type_input(st_container):
+    study_type = st_container.selectbox(
+        "Select study type",
+        STUDY_TYPES.keys(),
+        index=get_index_of_setting(list(STUDY_TYPES.keys()), "base_study_type"),
+    )
+    set_setting_for_current_user("base_study_type", study_type)
+    return study_type
 
 
 def get_index_of_setting(base_list, setting):
@@ -31,12 +81,13 @@ def get_startup_directory() -> Path:
     from streamlit_local_storage import LocalStorage
 
     localS = LocalStorage()
-    who_is_working = localS.getItem("who_is_working") or "Marc Goldstein"
-    try:
-        start_dir = get_setting(who_is_working, "startup_directory")
-        return Path(start_dir) or Path(r"C:\Users\apvse\PyPSA_csv")
-    except:
-        return Path(r"C:\Users\apvse\PyPSA_csv")
+    current_user = localS.getItem("who_is_working") or "Marc Goldstein"
+    start_dir = get_setting(current_user, "startup_directory")
+    if start_dir:
+        return Path(start_dir)
+    else:
+        set_setting_for_current_user("startup_directory", r"C:\Users\apvse\PyPSA_csv")
+        return Path(get_setting_for_current_user("startup_directory"))
 
 
 def get_list_of_users():
@@ -68,7 +119,10 @@ def file_selector(folder_path, show_context, setting_key=None):
             "Select settings file",
             filenames,
             index=get_index_of_setting(filenames, setting_key),
+            disabled=len(filenames) == 1,
         )
+        if setting_key:
+            set_setting_for_current_user(setting_key, selected_filename)
         return os.path.join(folder_path, selected_filename)
     else:
         show_context.write("No Excel settings file in directory")
@@ -94,7 +148,8 @@ def page_setup(page_name="PyPSA UI"):
 def open_location(location):
     # Open Windows Explorer at the specified folder
     if os.path.exists(location):
-        subprocess.run(["explorer", location])
+        # subprocess.run(["explorer", location])
+        os.startfile(location)
 
 
 def list_directories_with_paths(base_directory) -> dict:
@@ -179,6 +234,18 @@ def select_folder(start_directory=None):
     return folder_path
 
 
+def select_file(start_directory=None):
+    file_path = filedialog.askopenfilename(
+        title="Select a file",
+        # filetypes=(
+        #     ("Text Files", "*.txt"),
+        #     ("Python Files", "*.py"),
+        #     ("All Files", "*.*"),
+        # ),
+    )
+    return Path(file_path)
+
+
 def refresh_button(sidebar=True):
     if sidebar:
         if st.sidebar.button("Refresh", type="primary", use_container_width=True):
@@ -234,28 +301,42 @@ def list_directories_containing_results(input_path):
     return directories_with_results
 
 
-if "click_tracker" not in st.session_state:
-    st.session_state.click_tracker = False
+def do_clip(filepath, clip_type=win32clipboard.CF_DIB):
+    image = Image.open(filepath)
+    output = BytesIO()
+
+    image.convert("RGB").save(output, "BMP")
+    data = output.getvalue()[14:]
+    output.close()
+
+    win32clipboard.OpenClipboard()
+    win32clipboard.EmptyClipboard()
+    win32clipboard.SetClipboardData(clip_type, data)
+    win32clipboard.CloseClipboard()
+    st.toast(f"Sent to clipboard", icon="✂️")
 
 
 def clip(filepath, clip_type=win32clipboard.CF_DIB):
     st.button(
-        ":scissors:",
+        "",
+        icon=":material/content_cut:",
         key=uuid.uuid4(),
-        on_click=lambda: st.session_state.update({"click_tracker": True}),
+        type="primary",
+        on_click=lambda: do_clip(filepath),
     )
-    if st.session_state.click_tracker:
-        image = Image.open(filepath)
-        st.write(image)
-        output = BytesIO()
 
-        image.convert("RGB").save(output, "BMP")
-        data = output.getvalue()[14:]
-        output.close()
-
-        win32clipboard.OpenClipboard()
-        win32clipboard.EmptyClipboard()
-        win32clipboard.SetClipboardData(clip_type, data)
-        win32clipboard.CloseClipboard()
-        st.info(f"Sent to clipboard", icon="✂️")
-        st.session_state.click_tracker = False
+    # if st.session_state.click_tracker:
+    #     image = Image.open(filepath)
+    #     st.write(image)
+    #     output = BytesIO()
+    #
+    #     image.convert("RGB").save(output, "BMP")
+    #     data = output.getvalue()[14:]
+    #     output.close()
+    #
+    #     win32clipboard.OpenClipboard()
+    #     win32clipboard.EmptyClipboard()
+    #     win32clipboard.SetClipboardData(clip_type, data)
+    #     win32clipboard.CloseClipboard()
+    #     st.info(f"Sent to clipboard", icon="✂️")
+    #     st.session_state.click_tracker = False

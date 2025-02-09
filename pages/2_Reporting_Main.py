@@ -32,6 +32,8 @@ from pages.helpers.helpers import (
     file_selector,
     get_startup_directory,
     get_index_of_setting,
+    base_directory_input,
+    case_directory_input,
 )
 from pages.helpers.user_settings_db import (
     set_setting_for_current_user,
@@ -176,25 +178,12 @@ def excel_tabs(results_folder: Path):
 # set up sidebar
 ct = st.sidebar.container(border=True)
 
-folder_select_button = ct.button(
-    "Select project folder", use_container_width=True, type="primary"
-)
-if folder_select_button:
-    startup_directory = select_folder(start_directory=get_startup_directory())
-    set_setting_for_current_user("startup_directory", startup_directory)
-
-BASE_DIR = get_startup_directory() / get_setting_for_current_user("base_project")
-ct.text(BASE_DIR)
+BASE_DIR = base_directory_input(ct)
 
 
 # Case selection
-input_dirs = list_directories_with_paths(Path(BASE_DIR))
-cases = [d for d in input_dirs.keys() if "__pycache__" not in d]
-start_dir = ct.selectbox(
-    "Select case",
-    cases,
-    index=get_index_of_setting(list(cases), "case"),
-)
+start_dir = case_directory_input(ct, BASE_DIR)
+
 
 # Search for Excel file file
 excel_file = file_selector(Path(BASE_DIR), ct, setting_key="excel_file")

@@ -26,6 +26,9 @@ from pages.helpers.helpers import (
     file_selector,
     clip,
     find_files_containing_string,
+    base_directory_input,
+    study_type_input,
+    case_directory_input,
 )
 from pages.helpers.study_types import STUDY_TYPES
 
@@ -192,22 +195,20 @@ def make_page():
     st_container = st.sidebar.container(border=True)
 
     # Select the base project folder
-    folder_select_button = st_container.button(
-        "Select project folder", use_container_width=True, type="primary"
-    )
-    if folder_select_button:
-        BASE_DIR = Path(select_folder(start_directory=BASE_DIR))
-
-    st_container.write(BASE_DIR)
+    BASE_DIR = base_directory_input(st_container)
 
     # handle the case directory
     input_dirs = list_directories_with_paths(Path(BASE_DIR))
-    study_type = st_container.selectbox("Select study type", STUDY_TYPES.keys())
-    left_dir = st_container.selectbox(
-        "Select left case", input_dirs.keys(), key="left_dir", index=None
-    )
 
-    excel_file = file_selector(Path(BASE_DIR), st_container)
+    study_type = study_type_input(st_container)
+
+    left_dir = case_directory_input(st_container, BASE_DIR)
+    # left_dir = st_container.selectbox(
+    #     "Select case", input_dirs.keys(), key="left_dir", index=None
+    # )
+
+    # excel_file = file_selector(Path(BASE_DIR), st_container)
+    excel_file = file_selector(Path(BASE_DIR), st_container, setting_key="excel_file")
 
     st.markdown(f"## Load factor plot")
 
@@ -248,7 +249,7 @@ def make_page():
 
                 st.pyplot(fig)
         except Exception as e:
-            st.exception(e)
+            st.write("There is not valid data")
 
     with tabCompleted:
         st.write("Add completed images here")

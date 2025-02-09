@@ -31,6 +31,9 @@ from pages.helpers.helpers import (
     file_selector,
     get_startup_directory,
     get_index_of_setting,
+    base_directory_input,
+    case_directory_input,
+    study_type_input,
 )
 from pages.helpers.study_types import STUDY_TYPES
 from pages.helpers.user_settings_db import (
@@ -52,37 +55,24 @@ if "folder_path" not in st.session_state:
     st.session_state.folder_path = os.getcwd()
 
 # handle study directory selection
-# selected_folder_path = get_startup_directory() / get_setting_for_current_user(
-#     "base_project"
-# )
-folder_select_button = st_container.button(
-    "Select project folder", use_container_width=True, type="primary"
-)
-if folder_select_button:
-    startup_directory = select_folder(start_directory=get_startup_directory())
-    set_setting_for_current_user("startup_directory", startup_directory)
-
-BASE_DIR = get_startup_directory() / get_setting_for_current_user("base_project")
-st_container.text(BASE_DIR)
+BASE_DIR = base_directory_input(st_container)
 
 
 # handle the case directory
-input_dirs = list_directories_with_paths(Path(BASE_DIR))
-start_dir = st_container.selectbox(
-    "Select case",
-    input_dirs.keys(),
-    index=get_index_of_setting(list(input_dirs.keys()), "case"),
-)
-set_setting_for_current_user("case", start_dir)
+
+start_dir = case_directory_input(st_container, BASE_DIR)
+# input_dirs = list_directories_with_paths(Path(BASE_DIR))
+# start_dir = st_container.selectbox(
+#     "Select case",
+#     input_dirs.keys(),
+#     index=get_index_of_setting(list(input_dirs.keys()), "case"),
+# )
+# set_setting_for_current_user("case", start_dir)
 
 
 # study type selection [unconstrained, opt, opt etc]
-study_type = st_container.selectbox(
-    "Select study type",
-    STUDY_TYPES.keys(),
-    index=get_index_of_setting(list(STUDY_TYPES.keys()), "base_study_type"),
-)
-set_setting_for_current_user("base_study_type", study_type)
+study_type = study_type_input(st_container)
+
 
 # st.write(get_index_of_setting(input_dirs.keys(), "case"))
 # process inputs and show available years in case folder

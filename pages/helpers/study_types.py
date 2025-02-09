@@ -15,13 +15,13 @@ STUDY_TYPES = {
         "input": "Results_uc",
         "output": "Results_opt",
         "function": run_optimum_expansion,
-        "doc": "Add docs",
+        "doc": "Add documentation for Optimum Expansion",
     },
     "3. Incremental Demand Expansion": {
         "input": "Results_opt",
         "output": "Results_opti",
         "function": run_incremental_demand_expansion,
-        "doc": "Add docs",
+        "doc": "Add documentation for Incremental Demand Expansion",
     },
     # "4. Excess Energy Optimisation": {
     #     "input": "Results_opt",

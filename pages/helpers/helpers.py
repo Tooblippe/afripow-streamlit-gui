@@ -11,9 +11,40 @@ from PIL import Image
 import pandas as pd
 import os
 
+from pages.helpers.user_settings_db import get_setting, who_is_working
 
-def get_startup_directory():
-    return Path(r"C:\Users\apvse\PyPSA_csv")
+
+def get_index_of_setting(base_list, setting):
+    if setting:
+        user = who_is_working()
+        index = (
+            base_list.index(get_setting(user, setting))
+            if get_setting(user, setting) in base_list
+            else 0
+        )
+        return index
+    else:
+        return 0
+
+
+def get_startup_directory() -> Path:
+    from streamlit_local_storage import LocalStorage
+
+    localS = LocalStorage()
+    who_is_working = localS.getItem("who_is_working") or "Marc Goldstein"
+    try:
+        start_dir = get_setting(who_is_working, "startup_directory")
+        return Path(start_dir) or Path(r"C:\Users\apvse\PyPSA_csv")
+    except:
+        return Path(r"C:\Users\apvse\PyPSA_csv")
+
+
+def get_list_of_users():
+    return [
+        "Marc Goldstein",
+        "Maree Roos",
+        "Tobie Nortje",
+    ]
 
 
 def load_file(filename, sheet_name):
@@ -23,7 +54,7 @@ def load_file(filename, sheet_name):
     return df
 
 
-def file_selector(folder_path, show_context):
+def file_selector(folder_path, show_context, setting_key=None):
     """Produces a file selector of all files meeting the criteria:
     ext = "xlsm" and
     __setup__ is found in the filenamee
@@ -33,7 +64,11 @@ def file_selector(folder_path, show_context):
     filenames = [f for f in filenames if "xlsm" in f]
     filenames = [f for f in filenames if "_setup_" in f]
     if filenames:
-        selected_filename = show_context.selectbox("Select settings file", filenames)
+        selected_filename = show_context.selectbox(
+            "Select settings file",
+            filenames,
+            index=get_index_of_setting(filenames, setting_key),
+        )
         return os.path.join(folder_path, selected_filename)
     else:
         show_context.write("No Excel settings file in directory")
@@ -62,7 +97,7 @@ def open_location(location):
         subprocess.run(["explorer", location])
 
 
-def list_directories_with_paths(base_directory):
+def list_directories_with_paths(base_directory) -> dict:
     """
     Returns a dictionary where keys are directory names and values are their full paths,
     for directories within the given base directory.
@@ -146,10 +181,10 @@ def select_folder(start_directory=None):
 
 def refresh_button(sidebar=True):
     if sidebar:
-        if st.sidebar.button("Refresh", type="secondary", use_container_width=True):
+        if st.sidebar.button("Refresh", type="primary", use_container_width=True):
             st.rerun()
     else:
-        if st.button("Refresh"):
+        if st.button("Refresh", type="primary"):
             st.rerun()
 
 

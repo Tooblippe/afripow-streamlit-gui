@@ -30,8 +30,14 @@ from pages.helpers.helpers import (
     list_directories_with_paths,
     file_selector,
     get_startup_directory,
+    get_index_of_setting,
 )
 from pages.helpers.study_types import STUDY_TYPES
+from pages.helpers.user_settings_db import (
+    set_setting,
+    set_setting_for_current_user,
+    get_setting_for_current_user,
+)
 
 page_setup(page_name="PyPSA Studies")
 
@@ -46,27 +52,39 @@ if "folder_path" not in st.session_state:
     st.session_state.folder_path = os.getcwd()
 
 # handle study directory selection
-selected_folder_path = st.session_state.get("folder_path", None)
+# selected_folder_path = get_startup_directory() / get_setting_for_current_user(
+#     "base_project"
+# )
 folder_select_button = st_container.button(
     "Select project folder", use_container_width=True, type="primary"
 )
-# TODO - remove the actualy directory below and make a variable
 if folder_select_button:
-    BASE_DIR = select_folder(start_directory=get_startup_directory())
-    st.session_state.folder_path = BASE_DIR
-BASE_DIR = st.session_state.folder_path
+    startup_directory = select_folder(start_directory=get_startup_directory())
+    set_setting_for_current_user("startup_directory", startup_directory)
+
+BASE_DIR = get_startup_directory() / get_setting_for_current_user("base_project")
 st_container.text(BASE_DIR)
+
 
 # handle the case directory
 input_dirs = list_directories_with_paths(Path(BASE_DIR))
 start_dir = st_container.selectbox(
     "Select case",
     input_dirs.keys(),
+    index=get_index_of_setting(list(input_dirs.keys()), "case"),
 )
+set_setting_for_current_user("case", start_dir)
+
 
 # study type selection [unconstrained, opt, opt etc]
-study_type = st_container.selectbox("Select study type", STUDY_TYPES.keys())
+study_type = st_container.selectbox(
+    "Select study type",
+    STUDY_TYPES.keys(),
+    index=get_index_of_setting(list(STUDY_TYPES.keys()), "base_study_type"),
+)
+set_setting_for_current_user("base_study_type", study_type)
 
+# st.write(get_index_of_setting(input_dirs.keys(), "case"))
 # process inputs and show available years in case folder
 years_in_directory = find_int_named_subdirs(Path(BASE_DIR) / start_dir)
 
@@ -83,7 +101,7 @@ years = st_container.multiselect(
 # Main screen
 st.write(f"## {study_type}")
 
-BASE_DIR = st.session_state.folder_path
+# BASE_DIR = st.session_state.folder_path
 load_from_dir = STUDY_TYPES[study_type]["input"]
 save_to_dir = STUDY_TYPES[study_type]["output"]
 doc = STUDY_TYPES[study_type]["doc"]
@@ -142,16 +160,15 @@ else:
             )
         )
 
+
 # open case folder
 if st.button("Open Case Directory", type="primary"):
     open_location(Path(BASE_DIR) / start_dir)
 
 # run button
-refresh_button()
+refresh_button(sidebar=False)
 v = "Run Study" if len(years) > 0 else "Select years to enable Run button"
-run_button = st.sidebar.button(
-    v, type="primary", disabled=len(years) == 0, use_container_width=True
-)
+run_button = st.button(v, type="primary", disabled=len(years) == 0)
 if run_button:
     with st.spinner("Report is running. Output in terminal window."):
         f = STUDY_TYPES[study_type]["function"]

@@ -1,14 +1,7 @@
 import os
-import sys
 from pathlib import Path
 
-# sys.path.insert(
-#     0,
-#     "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src",
-# )
 
-
-import pandas as pd
 import streamlit as st
 from PIL import Image
 
@@ -38,8 +31,12 @@ from pages.helpers.helpers import (
     load_file,
     file_selector,
     get_startup_directory,
+    get_index_of_setting,
 )
-
+from pages.helpers.user_settings_db import (
+    set_setting_for_current_user,
+    get_setting_for_current_user,
+)
 
 page_setup(page_name="PyPSA Reporting")
 silence_warnings()
@@ -127,70 +124,80 @@ def excel_tabs(results_folder: Path):
     with tab4:
         c1, c2 = st.columns(2)
         with c1:
-            image_path = results_folder / "capacity_plot.png"
-            show_image(image_path)
+            if results_folder:
+                image_path = results_folder / "capacity_plot.png"
+                show_image(image_path)
 
-            image_path = results_folder / "capacity_plot_table.png"
-            show_image(image_path)
+                image_path = results_folder / "capacity_plot_table.png"
+                show_image(image_path)
         with c2:
-            show_image(results_folder / "capacity_delta_plot.png")
+            if results_folder:
+                show_image(results_folder / "capacity_delta_plot.png")
 
     with tab5:
         c1, c2 = st.columns(2)
         with c1:
-            image_path = results_folder / "energy_plot.png"
-            show_image(image_path)
-            image_path = results_folder / "energy_plot_table.png"
-            show_image(image_path)
+            if results_folder:
+                image_path = results_folder / "energy_plot.png"
+                show_image(image_path)
+                image_path = results_folder / "energy_plot_table.png"
+                show_image(image_path)
         with c2:
-            show_image(results_folder / "energy_delta_plot.png")
+            if results_folder:
+                show_image(results_folder / "energy_delta_plot.png")
     with tab6:
-        image_path = results_folder / "load_factor_plot_table.png"
-        show_image(image_path)
+        if results_folder:
+            image_path = results_folder / "load_factor_plot_table.png"
+            show_image(image_path)
     with tab7:
-        links_plot_insert(results_folder)
+        if results_folder:
+            links_plot_insert(results_folder)
     with ldc:
 
-        ldc_imgs = find_files_containing_string(
-            results_folder / "marginal_price", "_marginal_price_durtion_curve.png"
-        )
+        if results_folder:
+            ldc_imgs = find_files_containing_string(
+                results_folder / "marginal_price", "_marginal_price_durtion_curve.png"
+            )
 
-        for ldc in ldc_imgs:
-            image_path = results_folder / "marginal_price" / ldc
-            show_image(image_path)
+            for ldc in ldc_imgs:
+                image_path = results_folder / "marginal_price" / ldc
+                show_image(image_path)
     with dispatch:
+        if results_folder:
+            ldc_imgs = find_files_containing_string(
+                results_folder / "average_dispatch", "average_dispatch_"
+            )
 
-        ldc_imgs = find_files_containing_string(
-            results_folder / "average_dispatch", "average_dispatch_"
-        )
-
-        for ldc in ldc_imgs:
-            image_path = results_folder / "average_dispatch" / ldc
-            show_image(image_path)
+            for ldc in ldc_imgs:
+                image_path = results_folder / "average_dispatch" / ldc
+                show_image(image_path)
 
 
 # set up sidebar
 ct = st.sidebar.container(border=True)
 
-if "folder_path" not in st.session_state:
-    st.session_state["folder_path"] = os.getcwd()
-
-folder_select_button = ct.button("Select project folder", use_container_width=True)
+folder_select_button = ct.button(
+    "Select project folder", use_container_width=True, type="primary"
+)
 if folder_select_button:
-    BASE_DIR = select_folder(start_directory=get_startup_directory())
-    st.session_state.folder_path = BASE_DIR
-BASE_DIR = st.session_state.folder_path
-st.write(BASE_DIR)
+    startup_directory = select_folder(start_directory=get_startup_directory())
+    set_setting_for_current_user("startup_directory", startup_directory)
+
+BASE_DIR = get_startup_directory() / get_setting_for_current_user("base_project")
+ct.text(BASE_DIR)
 
 
 # Case selection
 input_dirs = list_directories_with_paths(Path(BASE_DIR))
+cases = [d for d in input_dirs.keys() if "__pycache__" not in d]
 start_dir = ct.selectbox(
-    "Select case", [d for d in input_dirs.keys() if "__pycache__" not in d]
+    "Select case",
+    cases,
+    index=get_index_of_setting(list(cases), "case"),
 )
 
 # Search for Excel file file
-excel_file = file_selector(Path(BASE_DIR), ct)
+excel_file = file_selector(Path(BASE_DIR), ct, setting_key="excel_file")
 
 study_type = None
 study_years = []
@@ -202,12 +209,10 @@ if excel_file:
 
     study_years = excel_file_df.loc[excel_file_df.select == 1].years.to_list()
 
-    study_type = ct.selectbox(
-        "Select input folder",
-        list_directories_containing_results(
-            Path(BASE_DIR) / Path(start_dir) / str(study_years[0])
-        ),
+    input_folders = list_directories_containing_results(
+        Path(BASE_DIR) / Path(start_dir) / str(study_years[0])
     )
+    study_type = ct.selectbox("Select input folder", input_folders, index=None)
 
 
 if study_type:
@@ -246,8 +251,6 @@ if excel_file:
     with C1:
         with st.container(border=True):
             excel_tabs(results_folder)
-
-    BASE_DIR = st.session_state.folder_path
 
     # Input summary
 

@@ -14,13 +14,13 @@ The asyncio support will be disabled in the debugger.
 
 import logging
 from pathlib import Path
+
 import streamlit as st
 from streamlit_local_storage import LocalStorage
 
 from pages.helpers.helpers import (
     package_version,
     get_package_version,
-    get_current_git_branch,
     list_directories_with_paths,
     get_startup_directory,
     get_list_of_users,
@@ -28,18 +28,13 @@ from pages.helpers.helpers import (
     open_location,
     select_folder,
     get_index_of_setting,
-    select_file,
-    short_string,
 )
-from pages.helpers.login_dialog import login_dialog
 from pages.helpers.study_types import STUDY_TYPES
 from pages.helpers.user_settings_db import (
     create_settings_db,
     load_user_settings,
-    save_user_setting,
     get_setting,
     set_setting,
-    get_setting_for_current_user,
 )
 
 streamlit_root_logger = logging.getLogger(st.__name__)

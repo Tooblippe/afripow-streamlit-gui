@@ -1037,7 +1037,7 @@ def save_outputs(network, scenario_folder, year, results_folder_name):
         winsound.Beep(1000, 1000)
         network.export_to_csv_folder(results_folder_name)
 
-        network_statistics_output(network, "component", Path(results_folder_name))
+        network_statistics_output(network, "carrier", Path(results_folder_name))
         # try:
         #     print("In network statisics")
         #     z_stats = network.statistics()

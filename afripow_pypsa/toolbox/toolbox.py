@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 import os
 import shutil
@@ -13,7 +13,7 @@ import pypsa
 import winsound
 from pypsa.descriptors import nominal_attrs
 import numpy as np
-
+from questionary import password
 
 from ..Report.Report import Report, __version__
 
@@ -421,6 +421,63 @@ def fix_n_minus_capacities(
     print("--------------------------\n\n")
 
 
+def fix_links_capacity(network: pypsa.Network, m: linopy.model):
+    # Link1 - for this link
+    # Link2_- equate to link in col = 'link_relationship'
+    print("\nfix_link_capacity")
+    print("---------------------------")
+    df: pd.DataFrame = network.links
+    if "link_relationship" in df.columns:
+        filtered_df: pd.DataFrame = df[
+            df["link_relationship"].apply(
+                lambda x: isinstance(x, str) and len(x) > 0
+            )  # Ensure it's a string and not empty
+            & df["link_relationship"].str.strip().ne("")  # Remove empty strings
+            & df["link_relationship"].ne("0")  # Remove "0"
+            & df["link_relationship"].notna()  # Remove NaN values
+        ]
+
+        # TODO ? we actualy need to test if right link is in fact in the list of left links?
+
+        # get the links variable for p_nom
+        link_capacity_var: linopy.Variable = m.variables["Link-p_nom"]
+
+        # iterate through all the links with 'link_relationship' added and set constraint
+        for index_link, right_link in filtered_df["link_relationship"].items():
+            if index_link and right_link:  # check if the links exist
+
+                # now check extendable?
+                index_link_extendable: bool = df.loc[df.index == index_link][
+                    "p_nom_extendable"
+                ].values[0]
+                right_link_extendable: bool = df.loc[right_link]["p_nom_extendable"]
+
+                # only add constraint if both is extendable
+                if index_link_extendable and right_link_extendable:
+                    lhs: linopy.LinearExpression = (
+                        link_capacity_var.loc[index_link]
+                        - link_capacity_var.loc[right_link]
+                    )
+                    m.add_constraints(
+                        lhs == 0, name=f"fix_{index_link}_{right_link}_capacity"
+                    )
+                    print(
+                        f" - Added fix link capacity for |{index_link}| and |{right_link}|"
+                    )
+                else:
+                    # Both not extendable. Let user know.
+                    print("Links Capacity - Links extendability criteria not met for:")
+                    print(f"{index_link} extendable {index_link_extendable}")
+                    print(f"{right_link} extendable {right_link_extendable}")
+            else:
+                # MMMM .....
+                print("Whe should not reach here!s")
+    else:
+        # Thee 'link' relationship column does not exist in the Links.csv file
+        print("'link_relationship' column not found in the Link definition.")
+    print("---------------------------\n")
+
+
 def fix_link_battery_capacity(network: pypsa.Network, m: linopy.model):
     print("\nfix_link_battery_capacity")
     print("---------------------------")
@@ -432,8 +489,8 @@ def fix_link_battery_capacity(network: pypsa.Network, m: linopy.model):
             link_battery_capacity_definitions.append(
                 {
                     "name": f"Link-battery_{storage_unit.Index}",
-                    "link_capacity_loc": storage_unit.su_link_mw,
-                    "battery_capacity_loc": storage_unit.Index,
+                    "link_capacity_loc": storage_unit.su_link_mw,  # Left
+                    "battery_capacity_loc": storage_unit.Index,  # Right
                 }
             )
     print(link_battery_capacity_definitions)
@@ -477,41 +534,16 @@ def fix_link_battery_capacity(network: pypsa.Network, m: linopy.model):
             m.add_constraints(lhs == 0, name=bcd["name"])
     except KeyError:
         print("Current year - does not have any StorageUnit / Battery definition.")
-
     print("---------------------------")
-    # lhs = (
-    #     link_capacity.loc["Lk196_(B1_BES_Pen-B_Pensulo)"]
-    #     - battery_capacity.loc["D-BES_Pen"]
-    # )
-    # m.add_constraints(lhs == 0, name="Link-battery_Pensulo")
-
-    # lhs = (
-    #     link_capacity.loc["Lk197_(B1_BES_Chi-B_Chipata)"]
-    #     - battery_capacity.loc["D-BES_Chi"]
-    # )
-    # m.add_constraints(lhs == 0, name="Link-battery_Chi")
-
-    # lhs = (
-    #     link_capacity.loc["Lk198_(B1_BES_Kit-B_Kitwe)"]
-    #     - battery_capacity.loc["D-BES_Kit"]
-    # )
-    # m.add_constraints(lhs == 0, name="Link-battery_Kit")
-
-    # lhs = (
-    #     link_capacity.loc["Lk199_(B1_BES_Kas-B_Kasama)"]
-    #     - battery_capacity.loc["D-BES_Kas"]
-    # )
-    # m.add_constraints(lhs == 0, name="Link-battery_Kas")
-
-    # lhs = (
-    #     link_capacity.loc["Lk200_(B1_BES_Lus-B_Lusaka-W)"]
-    #     - battery_capacity.loc["D-BES_Lus"]
-    # )
-    # m.add_constraints(lhs == 0, name="Link-battery_Lus")
 
 
 def add_reserve_constraint_per_level_and_area(
-    m, network, reserve_level, area_link_list, reserve_capacity_needed, constraint_name
+    m: linopy.model,
+    network: pypsa.Network,
+    reserve_level: str,
+    area_link_list: dict,
+    reserve_capacity_needed: float,
+    constraint_name: str,
 ):
     """add a single reserve constraint, this is called by the constaints setup function and not used by user"""
 
@@ -521,6 +553,22 @@ def add_reserve_constraint_per_level_and_area(
 
     # https://linopy.readthedocs.io/en/latest/creating-expressions.html#Using-.where-to-select-active-variables-or-expressions
     # Total_Dispatch_gt_0 = m.variables["Link-p"].where()
+    # Dispatch_Var =  m.variables["Link-p"]
+    # mask = xr.DataArray(Dispatch_Var >= 0, coords=Dispatch_Var.coords, dims=Dispatch_Var.dims)
+    # Dispatch_Var.where(mask)
+
+    # or
+    # generator_coords = pd.Index(network.generators.index)
+    # on_off = m.add_variables(
+    #     name="Generator-OnOffss", binary=True, coords=[generator_coords]
+    # )
+    # m.add_constraints(
+    #     m.variables["Generator-p"] <= network.generators.p_nom * on_off,
+    #     name="Generator_OnOff_Constraint",
+    # )
+
+    # m.add_constraints(m.variables["Generator-p"] <= network.generators.p_nom * on_off,
+    #        name="Generator_OnOff_Constraint")
 
     # test if p>0 of p==0
     # Dispatch_gt_0
@@ -531,10 +579,16 @@ def add_reserve_constraint_per_level_and_area(
     # Scheduled extendable variable
     # only extendable links is added
     Total_Schedule_Extendable = (
-        m.variables["Link-p_nom"].sel({"Link-ext": area_link_list["extendable"]})
-        * network.links.loc[area_link_list["extendable"]][reserve_level].to_list()
+        m.variables["Link-p_nom"].sel(
+            {"Link-ext": area_link_list["extendable"]}
+        )  # Select all the extendable links
+        * network.links.loc[area_link_list["extendable"]][
+            reserve_level
+        ].to_list()  # Multiply each extendable link with its reserve level
     )
-    Schedule_Extendable = Total_Schedule_Extendable.sum()
+    Schedule_Extendable = (
+        Total_Schedule_Extendable.sum()
+    )  # Get the total extendable TODO - what type of var is this
 
     # Scheduled non-extendable variable (scalar)
     # scheduled non-extendable totel is the sum of all the p_nom * reserve_level
@@ -565,7 +619,9 @@ def add_reserve_constraint_per_level_and_area(
     print(f"{constraint}\n\n")
 
 
-def add_all_reserve_constraints(network, m, reserves_file_path):
+def add_all_reserve_constraints(
+    network: pypsa.Network, m: linopy.model, reserves_file_path: str | Path
+):
     """find all constraints from links.csv, and loads reserves.csv witht the RHS from Inputsfolder
 
     To set up, in the links.csv file:
@@ -919,6 +975,57 @@ def load_and_prepare_network(inputs_folder_name, add_multi_index=True):
     return network
 
 
+def network_statistics_output(
+    network: pypsa.Network, grouper: str | list[str], output_folder: Path
+) -> None:
+
+    p = "z_"
+    grouper_list = []
+    if isinstance(grouper, str):
+        grouper_list = [grouper]
+    else:
+        grouper_list = grouper
+
+    if len(grouper_list) == 0:
+        grouper_list = ["carrier"]
+
+    try:
+        z_stats = network.statistics()
+        print("In network statistics")
+        print("---------------------")
+        z_stats["ave_cost"] = (
+            z_stats["Capital Expenditure"] + z_stats["Operational Expenditure"]
+        ) / z_stats["Transmission"]
+        z_stats.to_csv(output_folder / f"{p}statistics.csv")
+    except:
+        network.statistics().to_csv(output_folder / f"{p}statistics.csv")
+
+    installed_capex: pd.DataFrame = network.statistics.installed_capex(
+        groupby=grouper_list
+    )
+    installed_capex.to_csv(output_folder / f"{p}installed_capex.csv")
+
+    expanded_capex: pd.DataFrame = network.statistics.expanded_capex(
+        groupby=grouper_list
+    )
+    expanded_capex.to_csv(output_folder / f"{p}expanded_capex.csv")
+
+    optimal_capacity: pd.DataFrame = network.statistics.optimal_capacity(
+        groupby=grouper_list
+    )
+    optimal_capacity.to_csv(output_folder / f"{p}optimal_capacity.csv")
+
+    installed_capacity: pd.DataFrame = network.statistics.installed_capacity(
+        groupby=grouper_list
+    )
+    installed_capacity.to_csv(output_folder / f"{p}installed_capacity.csv")
+
+    expanded_capacity: pd.DataFrame = network.statistics.expanded_capacity(
+        groupby=grouper_list
+    )
+    expanded_capacity.to_csv(output_folder / f"{p}expanded_capacity.csv")
+
+
 def save_outputs(network, scenario_folder, year, results_folder_name):
     if True:
         print("****************************************")
@@ -930,18 +1037,22 @@ def save_outputs(network, scenario_folder, year, results_folder_name):
         winsound.Beep(1000, 1000)
         network.export_to_csv_folder(results_folder_name)
 
-        # Transmission
-        # Capital Expenditure
-        # Operational Expenditure
-        try:
-            print("In network statisics")
-            z_stats = network.statistics()
-            z_stats["ave_cost"] = (
-                z_stats["Capital Expenditure"] + z_stats["Operational Expenditure"]
-            ) / z_stats["Transmission"]
-            z_stats.to_csv(results_folder_name + "//z_statistics.csv")
-        except:
-            network.statistics().to_csv(results_folder_name + "//z_statistics.csv")
+        network_statistics_output(network, "component", Path(results_folder_name))
+        # try:
+        #     print("In network statisics")
+        #     z_stats = network.statistics()
+        #     print("In network statistics")
+        #     print("---------------------")
+        #     print(z_stats)
+        #     print(z_stats.columns)
+        #     print(dir(z_stats))
+        #     print("---------------------")
+        #     z_stats["ave_cost"] = (
+        #         z_stats["Capital Expenditure"] + z_stats["Operational Expenditure"]
+        #     ) / z_stats["Transmission"]
+        #     z_stats.to_csv(results_folder_name + "//z_statistics.csv")
+        # except:
+        #     network.statistics().to_csv(results_folder_name + "//z_statistics.csv")
 
 
 def remove_proxy_plant(n: pypsa.Network) -> None:
@@ -1245,6 +1356,7 @@ def run_unconstrained_expansion(
         m = network.optimize.create_model(multi_investment_periods=True)
         add_hydro_turnine_efficiency(network, m)
         fix_link_battery_capacity(network, m)
+        fix_links_capacity(network, m)
         add_all_reserve_constraints(network, m, inputs_folder_name + r"\reserves.csv")
 
         if use_lpmethod_4:
@@ -1292,6 +1404,7 @@ def run_optimum_expansion(
         m = network.optimize.create_model(multi_investment_periods=True)
         add_hydro_turnine_efficiency(network, m)
         fix_link_battery_capacity(network, m)
+        fix_links_capacity(network, m)
         add_all_reserve_constraints(network, m, inputs_folder_name + r"\reserves.csv")
 
         if use_lpmethod_4:
@@ -1342,6 +1455,8 @@ def run_incremental_demand_expansion(
         m = network.optimize.create_model(multi_investment_periods=True)
         add_hydro_turnine_efficiency(network, m)
         fix_link_battery_capacity(network, m)
+        fix_links_capacity(network, m)
+
         add_all_reserve_constraints(network, m, inputs_folder_name + r"\reserves.csv")
 
         if use_lpmethod_4:

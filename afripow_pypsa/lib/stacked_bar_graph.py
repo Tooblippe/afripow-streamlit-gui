@@ -13,7 +13,7 @@ def format_with_commas(value, tick_number):
 
 def format_zero_to_one(value, tick_number):
     return (
-        f"{value:,.02f}"  # Change '.0f' to ',.2f' if you want two decimal places, etc.
+        f"{value:,.0f}"  # Change '.0f' to ',.2f' if you want two decimal places, etc.
     )
 
 
@@ -22,8 +22,8 @@ def study_stacked_bar_graph(
 ) -> None:
     """Just do operations on the current graph"""
 
-    plt.title(title, fontsize="x-large", pad=20)
-    plt.ylabel(xlabel, fontsize="x-large")
+    plt.title(title, fontsize="x-large", pad=20, color="black")
+    plt.ylabel(xlabel, fontsize="x-large", color="black")
     plt.xticks(rotation=90, fontsize="x-large")
     plt.yticks(fontsize="x-large")
 
@@ -38,6 +38,8 @@ def study_stacked_bar_graph(
         ncol=4,
         fontsize="large",
     )
+
+    ax.tick_params(axis="both", colors="black")
 
     # add comma
     # Create a formatter object using the custom function

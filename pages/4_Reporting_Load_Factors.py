@@ -1,3 +1,5 @@
+import math
+
 import streamlit as st
 
 from pathlib import Path
@@ -16,7 +18,7 @@ from afripow_pypsa.helpers.plot_order_colours import get_plot_order_colours
 from afripow_pypsa.Report.Report import Report
 
 from afripow_pypsa.lib.settings import global_figsize
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, ticker
 
 from afripow_pypsa.helpers.own_types import FigAxDF
 
@@ -91,6 +93,7 @@ def generate_load_factor_plot(
     # clamp the dataframe to plot order, this should not have an effect most of the time, since the capacity
     # and energy plots have been created using this
     df = df[plot_order]
+    df = df * 100
 
     # only show the selected years, carriers
     df = df.loc[plot_only_these_years, plot_only_these_carriers]
@@ -105,6 +108,8 @@ def generate_load_factor_plot(
         mask = df <= limit
         df = df[mask]
 
+    # remove all columns with no data
+    df = df.dropna(axis=1, how="all")
     # make the plot
     df.plot(ax=ax, kind="bar", width=0.8, color=colors_list)
 
@@ -113,13 +118,15 @@ def generate_load_factor_plot(
         fig,
         ax,
         f"Load factors for: {case_name}",
-        "Load factor",
+        "Load factor [%]",
         custom_formatter=format_zero_to_one,
     )
 
     # set y-axis ticks from 0 to 1 in steps of 0.1
     ax.set_ylim(0, 1)
-    ax.set_yticks(np.arange(0, 1.1, 0.1))
+
+    max_val = 110 if df.max().max() >= 80 else math.ceil(df.max().max()) + 10
+    ax.set_yticks([round(i) for i in np.arange(0, max_val, 10)])
 
     # remove vertical gridlines
     ax.xaxis.grid(False)
@@ -231,7 +238,7 @@ def make_page():
                 columns = st.multiselect(
                     "Select columns", df.columns, default=df.columns
                 )
-                limit = int(st.slider("Load factor threshold", 0, 100, 100, 1)) / 100
+                limit = int(st.slider("Load factor threshold", 0, 100, 100, 1))
 
             with col2:
                 fig, ax, df, path_to_figure = show_load_factor_plot(

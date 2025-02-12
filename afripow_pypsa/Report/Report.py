@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 __version__ = "25.1.4"
 

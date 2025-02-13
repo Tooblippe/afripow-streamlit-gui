@@ -1,0 +1,15 @@
+import streamlit as st
+from huey import SqliteHuey
+import time
+from pages.task_que.task_que import create_excel_file, huey
+
+st.write("Task que")
+
+if st.button("Refresh"):
+    st.rerun()
+
+if st.button("Start Task"):
+    task = create_excel_file("I am a task")
+    st.write({"message": "Task started", "task_id": task.id})
+
+st.write(huey.pending())

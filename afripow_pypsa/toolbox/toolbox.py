@@ -427,53 +427,57 @@ def fix_links_capacity(network: pypsa.Network, m: linopy.model):
     print("\nfix_link_capacity")
     print("---------------------------")
     df: pd.DataFrame = network.links
+
     if "link_relationship" in df.columns:
-        filtered_df: pd.DataFrame = df[
-            df["link_relationship"].apply(
-                lambda x: isinstance(x, str) and len(x) > 0
-            )  # Ensure it's a string and not empty
-            & df["link_relationship"].str.strip().ne("")  # Remove empty strings
-            & df["link_relationship"].ne("0")  # Remove "0"
-            & df["link_relationship"].notna()  # Remove NaN values
-        ]
+        if not df["link_relationship"].isna().all():
+            filtered_df: pd.DataFrame = df[
+                df["link_relationship"].apply(
+                    lambda x: isinstance(x, str) and len(str(x)) > 0
+                )  # Ensure it's a string and not empty
+                & df["link_relationship"].ne("0")  # Remove "0"
+                & df["link_relationship"].notna()  # Remove NaN values
+            ]
 
-        # TODO ? we actualy need to test if right link is in fact in the list of left links?
+            # TODO ? we actualy need to test if right link is in fact in the list of left links?
 
-        # get the links variable for p_nom
-        link_capacity_var: linopy.Variable = m.variables["Link-p_nom"]
+            # get the links variable for p_nom
+            link_capacity_var: linopy.Variable = m.variables["Link-p_nom"]
 
-        # iterate through all the links with 'link_relationship' added and set constraint
-        for index_link, right_link in filtered_df["link_relationship"].items():
-            if index_link and right_link:  # check if the links exist
+            # iterate through all the links with 'link_relationship' added and set constraint
+            for index_link, right_link in filtered_df["link_relationship"].items():
+                if index_link and right_link:  # check if the links exist
 
-                # now check extendable?
-                index_link_extendable: bool = df.loc[df.index == index_link][
-                    "p_nom_extendable"
-                ].values[0]
-                right_link_extendable: bool = df.loc[right_link]["p_nom_extendable"]
+                    # now check extendable?
+                    index_link_extendable: bool = df.loc[df.index == index_link][
+                        "p_nom_extendable"
+                    ].values[0]
+                    right_link_extendable: bool = df.loc[right_link]["p_nom_extendable"]
 
-                # only add constraint if both is extendable
-                if index_link_extendable and right_link_extendable:
-                    lhs: linopy.LinearExpression = (
-                        link_capacity_var.loc[index_link]
-                        - link_capacity_var.loc[right_link]
-                    )
-                    m.add_constraints(
-                        lhs == 0, name=f"fix_{index_link}_{right_link}_capacity"
-                    )
-                    print(
-                        f" - Added fix link capacity for |{index_link}| and |{right_link}|"
-                    )
+                    # only add constraint if both is extendable
+                    if index_link_extendable and right_link_extendable:
+                        lhs: linopy.LinearExpression = (
+                            link_capacity_var.loc[index_link]
+                            - link_capacity_var.loc[right_link]
+                        )
+                        m.add_constraints(
+                            lhs == 0, name=f"fix_{index_link}_{right_link}_capacity"
+                        )
+                        print(
+                            f" - Added fix link capacity for |{index_link}| and |{right_link}|"
+                        )
+                    else:
+                        # Both not extendable. Let user know.
+                        print(
+                            "Links Capacity - Links extendability criteria not met for:"
+                        )
+                        print(f"{index_link} extendable {index_link_extendable}")
+                        print(f"{right_link} extendable {right_link_extendable}")
                 else:
-                    # Both not extendable. Let user know.
-                    print("Links Capacity - Links extendability criteria not met for:")
-                    print(f"{index_link} extendable {index_link_extendable}")
-                    print(f"{right_link} extendable {right_link_extendable}")
-            else:
-                # MMMM .....
-                print("Whe should not reach here!s")
+                    # MMMM .....
+                    print("Whe should not reach here!s")
+        else:
+            print("link_relationship column is only NaN")
     else:
-        # Thee 'link' relationship column does not exist in the Links.csv file
         print("'link_relationship' column not found in the Link definition.")
     print("---------------------------\n")
 

@@ -13,7 +13,7 @@ from starlette.responses import HTMLResponse
 import xlwings as xw
 
 # Initialize Huey with SQLite as the backend
-huey = SqliteHuey('tasks.db')
+huey = SqliteHuey("tasks.db")
 app = FastAPI()
 
 
@@ -22,12 +22,14 @@ def init_db():
     """Initialize the tasks database and create the tasks table if it doesn't exist."""
     with sqlite3.connect("tasks.db") as conn:
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             task_id TEXT,
             status TEXT
-        )""")
+        )"""
+        )
         conn.commit()
 
 
@@ -45,7 +47,9 @@ def add_task_to_db(task_id: str, status: str):
     """Insert a new task into the database."""
     with sqlite3.connect("tasks.db") as conn:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO tasks (task_id, status) VALUES (?, ?)", (task_id, status))
+        cursor.execute(
+            "INSERT INTO tasks (task_id, status) VALUES (?, ?)", (task_id, status)
+        )
         conn.commit()
 
 
@@ -54,7 +58,9 @@ def update_task_status(task_id: str, status: str):
     """Update the status of a task in the database."""
     with sqlite3.connect("tasks.db") as conn:
         cursor = conn.cursor()
-        cursor.execute("UPDATE tasks SET status = ? WHERE task_id = ?", (status, task_id))
+        cursor.execute(
+            "UPDATE tasks SET status = ? WHERE task_id = ?", (status, task_id)
+        )
         conn.commit()
 
 
@@ -75,7 +81,12 @@ def background_task(message, task=None):
     add_task_to_db(task_id, "running")
 
     # Define paths
-    base_path = Path(r"C:\Users\tobie\PycharmProjects\afripow-streamlit-gui\experiments\huey_task_scheduler")
+    base_path = Path(
+        r"C:\Users\tobie\PycharmProjects\afripow-streamlit-gui\experiments\huey_task_scheduler"
+    )
+    base_path = Path(
+        r"C:\Users\apvse\OneDrive\afripow-streamlit-gui-dev\experiments\huey_task_scheduler"
+    )
     original_file = base_path / "macro_test.xlsb"
     copy_file = base_path / f"{task_id}.xlsx"
 
@@ -84,9 +95,9 @@ def background_task(message, task=None):
     wb = app.books.open(original_file)  # Open the file in the hidden Excel instance
 
     # Select sheet and run macro
-    sheet = wb.sheets['Sheet1']
-    wb.macro('run_python')()
-    sheet['A1'].value = task_id  # Set value in A1
+    sheet = wb.sheets["Sheet1"]
+    wb.macro("run_python")()
+    sheet["A1"].value = task_id  # Set value in A1
 
     # Save a copy
     wb.save(copy_file)
@@ -139,7 +150,7 @@ def current_huey_tasks():
     # Check for running tasks
     with sqlite3.connect("tasks.db") as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT task_id FROM tasks WHERE status = ?", ('running',))
+        cursor.execute("SELECT task_id FROM tasks WHERE status = ?", ("running",))
         id_r = cursor.fetchone()
         if id_r:
             html += f"<p> 1 - TASK ID : {id_r[0]} -- Running</p>"

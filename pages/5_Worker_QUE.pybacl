@@ -9,7 +9,7 @@ if st.button("Refresh"):
     st.rerun()
 
 if st.button("Start Task"):
-    task = create_excel_file("I am a task")
+    task = create_excel_file("Writing out the Excel file")
     st.write({"message": "Task started", "task_id": task.id})
 
 st.write(huey.pending())

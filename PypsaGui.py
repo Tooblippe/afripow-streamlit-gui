@@ -84,11 +84,11 @@ with colb:
 
         # st.write(Path(get_setting_for_current_user("gim_file")).name)
     with b_2:
-        if st.button("Select base directory", type="primary"):
+        if st.button("Set PyPSA_csv directory", type="primary"):
             startup_folder = select_folder()
             set_setting(who_is_working, "startup_directory", startup_folder)
 
-        if st.button("Open base directory", type="primary"):
+        if st.button("Open PyPSA_csv directory", type="primary"):
             open_location(get_startup_directory())
         # if st.button("Select GIM File", key="gim"):
         #     gim_file = select_file()

@@ -4,7 +4,7 @@ from huey import SqliteHuey
 import streamlit as st
 
 PATH_TO_GIM = Path(
-    r"C:\Users\apvse\OneDrive\S(Pypsa)-APVserver2\2502_Link-Relationship_Example"
+    r"C:\Users\apvse\OneDrive\S(Pypsa)-APVserver2\2502_Link-Relationship_Example\250211_GIM_Link_Example_v12.6.xlsb"
 )
 PATH_TO_TASK_DB = r"C:\Users\apvse\OneDrive\afripow-streamlit-gui-dev\pages\tasks.db"
 PATH_TO_HUEY_DB = r"C:\Users\apvse\OneDrive\afripow-streamlit-gui-dev\pages\huey.db"

@@ -217,7 +217,8 @@ def make_page():
     # excel_file = file_selector(Path(BASE_DIR), st_container)
     excel_file = file_selector(Path(BASE_DIR), st_container, setting_key="excel_file")
 
-    st.markdown(f"## Load factor plot")
+    with st.container(border=True):
+        st.markdown(f"## Load Factor Plot")
 
     tabCurrent, tabCompleted = st.tabs(["Current", "Completed"])
     with tabCurrent:

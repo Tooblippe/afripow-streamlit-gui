@@ -43,7 +43,9 @@ from pages.helpers.user_settings_db import (
 page_setup(page_name="PyPSA Reporting")
 silence_warnings()
 set_cplex_licence_key()
-st.write(f"## PyPSA Reporting")
+
+with st.container(border=True):
+    st.write(f"## PyPSA Reporting")
 
 
 def show_image(image_path):

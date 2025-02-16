@@ -205,7 +205,8 @@ right_dir = st_container.selectbox(
 
 excel_file = file_selector(Path(BASE_DIR), st_container, setting_key="excel_file")
 
-st.markdown(f"## Scenario Capacity and Energy Comparison")
+with st.container(border=True):
+    st.markdown(f"## Scenario Capacity and Energy Comparison")
 st.markdown(f"### {left_dir or 'Select left'} vs. {right_dir or 'Select right'}")
 
 if left_dir:

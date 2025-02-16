@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import xlwings as xw
 from huey import SqliteHuey
@@ -17,8 +18,20 @@ huey = SqliteHuey(PATH_TO_HUEY_DB)
 def create_excel_file(message, task=None):
     """Run a background task and update its status."""
     task_id = task.id
-    original_file = PATH_TO_GIM
 
+    with open("current_task.json", "w") as f:
+        json.dump(
+            {
+                "task_id": task_id,
+                "message": message,
+            },
+            f,
+            indent=4,
+        )
+
+    # set current running task
+    original_file = PATH_TO_GIM
+    print(f"Original file: {original_file}")
     # Open the workbook without making it visible
     app = xw.App(visible=False)  # Ensure Excel is hidden
     wb = app.books.open(original_file)  # Open the file in the hidden Excel instance
@@ -28,3 +41,14 @@ def create_excel_file(message, task=None):
     # Close workbook and quit Excel completely
     wb.close()
     app.quit()  # Ensure Excel process is terminated
+
+    # clear current running task
+    with open("current_task.json", "w") as f:
+        json.dump(
+            {
+                "task_id": "No task",
+                "message": "No message",
+            },
+            f,
+            indent=4,
+        )

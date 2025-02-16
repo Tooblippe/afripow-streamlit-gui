@@ -5,16 +5,10 @@ import pandas as pd
 import streamlit as st
 
 from pages.helpers.excess_energy_optimisation import (
-    excess_energy_optimisation,
     fetch_excess_energy_parameters,
 )
 
-# sys.path.insert(0, "C:\\Users\\tobie\\PycharmProjects\\afripow-pypsa-reporting\\afripow_toolbox_reporting\\src", )
-
 from afripow_pypsa.toolbox.toolbox import (
-    run_incremental_demand_expansion,
-    run_unconstrained_expansion,
-    run_optimum_expansion,
     silence_warnings,
     set_cplex_licence_key,
 )
@@ -24,23 +18,14 @@ from afripow_pypsa.helpers.direcory_cases import find_int_named_subdirs
 from pages.helpers.helpers import (
     open_location,
     package_version,
-    select_folder,
     refresh_button,
     page_setup,
-    list_directories_with_paths,
     file_selector,
-    get_startup_directory,
-    get_index_of_setting,
     base_directory_input,
     case_directory_input,
     study_type_input,
 )
 from pages.helpers.study_types import STUDY_TYPES
-from pages.helpers.user_settings_db import (
-    set_setting,
-    set_setting_for_current_user,
-    get_setting_for_current_user,
-)
 
 page_setup(page_name="PyPSA Studies")
 
@@ -89,7 +74,8 @@ years = st_container.multiselect(
 
 
 # Main screen
-st.write(f"## {study_type}")
+with st.container(border=True):
+    st.write(f"## {study_type}")
 
 # BASE_DIR = st.session_state.folder_path
 load_from_dir = STUDY_TYPES[study_type]["input"]

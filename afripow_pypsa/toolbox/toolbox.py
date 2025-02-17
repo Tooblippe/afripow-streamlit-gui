@@ -555,33 +555,25 @@ def add_reserve_constraint_per_level_and_area(
     # All links are dispatched
     Total_Dispatch = m.variables["Link-p"] * network.links[reserve_level]
 
-    # https://linopy.readthedocs.io/en/latest/creating-expressions.html#Using-.where-to-select-active-variables-or-expressions
-    # Total_Dispatch_gt_0 = m.variables["Link-p"].where()
-    # Dispatch_Var =  m.variables["Link-p"]
-    # mask = xr.DataArray(Dispatch_Var >= 0, coords=Dispatch_Var.coords, dims=Dispatch_Var.dims)
-    # Dispatch_Var.where(mask)
-
-    # or
-    # generator_coords = pd.Index(network.generators.index)
-    # on_off = m.add_variables(
-    #     name="Generator-OnOffss", binary=True, coords=[generator_coords]
-    # )
-    # m.add_constraints(
-    #     m.variables["Generator-p"] <= network.generators.p_nom * on_off,
-    #     name="Generator_OnOff_Constraint",
-    # )
-
-    # m.add_constraints(m.variables["Generator-p"] <= network.generators.p_nom * on_off,
-    #        name="Generator_OnOff_Constraint")
-
-    # test if p>0 of p==0
-    # Dispatch_gt_0
-    # Dispatch_eq_0
-
     Dispatch = Total_Dispatch.sel(Link=area_link_list["all_links"]).sum("Link")
+
+    # Maree 17/2
+    # check if it is built check if p_nom > 0
+
+    # Reserve is unused capacity
+
+    # Reserve_unitilised_reserve = P_nom/opt - p0
+
+    # check if the link is synced e.g. p0 > 0
+    # if p0 > 0 then Synced
+    #    Only contribute to reserves if you are online and can contribute to reserves (Syncronised Reserves)
+
+    # if p0 = 0 not Synced
+    #    Build but not in use (Non syncronised reserves)
 
     # Scheduled extendable variable
     # only extendable links is added
+    # Meet a reserve level in a area (extendable and non extandable ) total needs to meet the given reserve requirement
     Total_Schedule_Extendable = (
         m.variables["Link-p_nom"].sel(
             {"Link-ext": area_link_list["extendable"]}
@@ -608,6 +600,7 @@ def add_reserve_constraint_per_level_and_area(
         len(area_link_list["non_extendable"]["links"]) > 0
         and non_extantable_total_mw > 0
     ):
+        # If extendable then build new capacity until you meet reserve requirement
         print(
             f"Total adjusted non extendable contrib to reserves {area_link_list['non_extendable']['links']}- {non_extantable_total_mw}"
         )

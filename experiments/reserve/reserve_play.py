@@ -46,3 +46,24 @@ m.add_constraints(
     >= 0.001 * dispatching,  # Small threshold to ensure `dispatching=1` when generating
     name="Ensure_Dispatching_One_If_Generating",
 )
+
+
+# Add the p_nom as a scalar
+# -------------------------
+import xarray as xr
+
+p = m.variables["Link-p"]
+
+m.add_variables(
+    network.links.p_nom,
+    network.links.p_nom,
+    coords=[network.snapshots, network.links],
+    name="p_nom",
+)
+
+p_nom = m.variables["p_nom"]
+
+reserve_sync = p_nom - p
+reserve_per_snapshot = reserve_sync.sum(dim="Link")
+
+m.add_constraints(reserve_per_snapshot >= 10000, name="Reserve_p_nom_min_p")

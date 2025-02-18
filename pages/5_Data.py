@@ -1,19 +1,19 @@
 import streamlit as st
 
+from pages.eskom_data.eskom_data_viewer import eskom_viewer_new
 from pages.helpers.helpers import page_setup
 
 
 page_setup(page_name="Data Viewer")
-
-with st.container(border=True):
-    st.markdown("# Data viewer", unsafe_allow_html=True)
-
 options = ["Eskom", "Water"]
 
-option = st.selectbox("Select data option", options=options)
 
+
+option = st.sidebar.selectbox("Select data option", options=options, index=None)
+if not option:
+    st.write("Select data option from sidebar")
 
 if option == "Eskom":
-    st.write("Eskom")
+    eskom_viewer_new()
 elif option == "Water":
     st.write("Water")

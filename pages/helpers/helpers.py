@@ -1,4 +1,5 @@
 # import subprocess
+import base64
 import subprocess
 import tkinter as tk
 from io import BytesIO
@@ -340,3 +341,22 @@ def clip(filepath, clip_type=win32clipboard.CF_DIB):
     #     win32clipboard.CloseClipboard()
     #     st.info(f"Sent to clipboard", icon="✂️")
     #     st.session_state.click_tracker = False
+
+
+def download_df(
+    df,
+    name,
+    date,
+    show_df_button=True,
+    key="key",
+    message="Download csv file",
+    show_df=True,
+):
+    csv = df.to_csv(index=True)
+    b64 = base64.b64encode(csv.encode()).decode()  # some strings
+    linko = f'<a href="data:file/csv;base64,{b64}" download="{name}_{date}.csv">{message}</a>'
+    st.markdown(linko, unsafe_allow_html=True)
+    # st.write(report_data["df"])
+    if show_df_button:
+        if st.button("Show dataframe", key=key):
+            st.dataframe(df, width=1000)

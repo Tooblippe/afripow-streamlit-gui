@@ -12,3 +12,4 @@ linopy~=0.3.10
 huey~=2.5.2
 streamlit-local-storage
 cplex
+questionary

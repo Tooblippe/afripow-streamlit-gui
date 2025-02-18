@@ -13,7 +13,7 @@ from matplotlib.pyplot import xlabel, ylabel, title
 from pages.helpers.helpers import download_df
 
 
-ESKOM_DATA_DIR  = "pages/eskom_data/"
+ESKOM_DATA_DIR = "pages/eskom_data/"
 
 eskom_columns = [
     "Original Res Forecast before Lockdown",
@@ -78,44 +78,49 @@ def read_df():
 
 def upload_and_fix():
 
-        st.write("Upload latest Eskom file")
-        uploaded_file = st.file_uploader("Choose a file", type=["csv"], accept_multiple_files=False, label_visibility="hidden")
+    st.write("Upload latest Eskom file")
+    uploaded_file = st.file_uploader(
+        "Choose a file",
+        type=["csv"],
+        accept_multiple_files=False,
+        label_visibility="hidden",
+    )
 
-        if uploaded_file:
-            uploaded_filenae = uploaded_file.name
-            new_eskom_file = Path(ESKOM_DATA_DIR) / uploaded_filenae
-            print(f"file uploaded {new_eskom_file}")
-            if uploaded_file is not None:
-                file_type = new_eskom_file.suffix[1:]
-                name = new_eskom_file.name[:-4]
-                if uploaded_file is not None and file_type == "csv":
-                    # To read file as bytes:
-                    bytes_data = uploaded_file.getvalue()
+    if uploaded_file:
+        uploaded_filenae = uploaded_file.name
+        new_eskom_file = Path(ESKOM_DATA_DIR) / uploaded_filenae
+        print(f"file uploaded {new_eskom_file}")
+        if uploaded_file is not None:
+            file_type = new_eskom_file.suffix[1:]
+            name = new_eskom_file.name[:-4]
+            if uploaded_file is not None and file_type == "csv":
+                # To read file as bytes:
+                bytes_data = uploaded_file.getvalue()
 
-                    with open(new_eskom_file, "wb") as f:
-                        f.write(bytes_data)
-                else:
-                    st.write("Must be a csv file")
+                with open(new_eskom_file, "wb") as f:
+                    f.write(bytes_data)
+            else:
+                st.write("Must be a csv file")
 
-            # fix the file
-            with open(new_eskom_file, "r") as f:
-                csv_file = csv.DictReader(f)
-                df = pd.DataFrame(csv_file)
+        # fix the file
+        with open(new_eskom_file, "r") as f:
+            csv_file = csv.DictReader(f)
+            df = pd.DataFrame(csv_file)
 
-            df = df.iloc[:, :-1]
-            df["Original Res Forecast before Lockdown"] = df[
-                "Original Res Forecast before Lockdown"
-            ].apply(lambda x: 0 if x == "" else float(x))
-            df.to_csv(
-                Path(f"{ESKOM_DATA_DIR}/latest_{datetime.date.today()}.csv"),
-                index=False,
-            )
-            st.rerun()
-        else:
-            st.write("Drop an raw eskom download tile to upload and fix")
+        df = df.iloc[:, :-1]
+        df["Original Res Forecast before Lockdown"] = df[
+            "Original Res Forecast before Lockdown"
+        ].apply(lambda x: 0 if x == "" else float(x))
+        df.to_csv(
+            Path(f"{ESKOM_DATA_DIR}/latest_{datetime.date.today()}.csv"),
+            index=False,
+        )
+        st.rerun()
+    else:
+        st.write("Drop raw eskom download file here.")
+
 
 def eskom_viewer_new():
-
 
     st.write("# Eskom Data Viewer")
 
@@ -185,13 +190,19 @@ def eskom_viewer_new():
     mask = (df.index.date >= report_start_date) & (df.index.date <= report_end_date)
     df = df.loc[mask]
 
-
     if not df.empty:
 
         with c1:
-            download_df(df, f"eskom_data", f"{report_start_date}_{report_end_date}", show_df_button=False)
+            download_df(
+                df,
+                f"eskom_data",
+                f"{report_start_date}_{report_end_date}",
+                show_df_button=False,
+            )
             fig, ax = plt.subplots()
-            ax.yaxis.set_major_formatter(matplotlib.ticker.StrMethodFormatter("{x:,.0f}"))
+            ax.yaxis.set_major_formatter(
+                matplotlib.ticker.StrMethodFormatter("{x:,.0f}")
+            )
             fig.set_size_inches(9.5, 5.5)
             xlabel("Date/Time[h]")
             ylabel("MW")
@@ -200,13 +211,13 @@ def eskom_viewer_new():
             ax.title.set_size(15)
             fig = matplotlib.pyplot.gcf()
             st.pyplot(fig, use_container_width=False)
-
-        with c2:
-            st.write("[Eskom Data Source](https://www.eskom.co.za/dataportal/)")
-            st.write("[Data Request Form](https://www.eskom.co.za/dataportal/data-request-form/)")
-            st.write(f"Data file: {Path(latest_file()).name}")
-            upload_and_fix()
     else:
         st.write("### Please select a data column(s)")
 
-
+    with c2:
+        st.write("[Eskom Data Source](https://www.eskom.co.za/dataportal/)")
+        st.write(
+            "[Data Request Form](https://www.eskom.co.za/dataportal/data-request-form/)"
+        )
+        st.write(f"Data file: {Path(latest_file()).name}")
+        upload_and_fix()

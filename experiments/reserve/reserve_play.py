@@ -1,55 +1,55 @@
-import pypsa
+# https://pypsa.readthedocs.io/en/latest/examples/reserve-power.html#Limitations-and-other-approaches
 
-# Create a new network
-n = pypsa.examples.ac_dc_meshed(from_master=True)
+"""
+We now add a new variable ReservePowerVar which represents the reserve power.
+It has a lower bound of zero, is defined for all dispatchable generators and has a time index.
+"""
+ReserveRequirementVar = m.add_variables(
+    lower=0,
+    upper=network.links.p_nom,
+    coords=[network.snapshots, network.links.index],
+    name="Link-p_reserves",
+)
 
-m = n.optimize.create_model()
+"""
+Next, we define a new constraint which ensures that for each snapshot 
+the total reserve requirement is satisfied by the sum of the reserve power provided by all generators.
+"""
+ReserveRequirement = 10
+ReserveSumConstraint = m.add_constraints(
+    ReserveRequirementVar.sum("Link") >= ReserveRequirement,
+    name="GlobalConstraint-sum_of_reserves",
+)
 
+"""
+Now we need to limit the amount of reserve power that each generator can provide. 
+The following constraint ensures that the reserve power provided by a generator must be
+less than or equal to the difference between its power p and its nominal power p_nom:
 
-# Add the p_nom as a scalar
-# -------------------------
-import xarray as xr
-
-p = m.variables["Link-p"]
-
+Set a variable to the size of p_nom lower and upper to fix
+-n_reserve.model.variables["Generator-p"] + a * n_reserve.generators["p_nom"]
+# or do m.variables["Link-p_nom"]
+"""
+reserve_upper_limit = 1
 m.add_variables(
-    network.links.p_nom,
-    network.links.p_nom,
+    upper=network.links.p_nom,
+    lower=network.links.p_nom,
     coords=[network.snapshots, network.links],
-    name="p_nom",
+    name="Link-p_nom_reserve",
+)
+ReserveUpperLimit = m.add_constraints(
+    ReserveRequirementVar
+    <= reserve_upper_limit * m.variables["Link-p_nom_reserve"] - m.variables["Link-p"],
+    name="Link-reserve_upper_limit",
 )
 
-m.add_variables(
-    network.links.p_nom_opt,
-    network.links.p_nom_opt,
-    coords=[network.snapshots, network.links],
-    name="p_nom_opt",
+"""
+Finally, we add a constraint to ensure that the reserve power provided by a generator
+must be less than or equal to its actual power p multiplied by a scalar coefficient b. 
+This coefficient can take any value between 0 and 1 and represents the technical availability of a generator to provide reserve power.
+"""
+reserve_lower_limit = 0.7
+ReserveLoweLimit = m.add_constraints(
+    ReserveRequirementVar <= reserve_lower_limit * m.variables["Link-p"],
+    name="Link-reserve_lower_limit",
 )
-
-p_nom = m.variables["p_nom"]
-p_nom_opt = m.variables["p_nom_opt"]
-
-reserve_sync = p_nom - p
-
-
-reserve_per_snapshot = reserve_sync.sum(dim="Link")
-
-m.add_constraints(reserve_per_snapshot >= 10000, name="Reserve_p_nom_min_p")
-
-
-(p_nom - p).where(xr.DataArray(p >= 1, coords=p.coords, dims=p.dims)).sum(dim="Link")
-(p_nom_opt - p).where(xr.DataArray(p >= 1, coords=p.coords, dims=p.dims)).sum(
-    dim="Link"
-)
-
-# mmmmmm
-(p - 1).sum(dim="Link") >= 0
-
- mask = xr.DataArray((p - 1) >= 0, coords=p.coords, dims=p.dims, name="p_on_filter")
-
-p.where(mask, other=xr.DataArray(False, coords=p.coords, dims=p.dims))
-
-def c(p):
-    return p>=1
-
-p.where(c)

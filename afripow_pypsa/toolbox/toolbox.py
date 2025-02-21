@@ -557,20 +557,6 @@ def add_reserve_constraint_per_level_and_area(
 
     Dispatch = Total_Dispatch.sel(Link=area_link_list["all_links"]).sum("Link")
 
-    # Maree 17/2
-    # check if it is built check if p_nom > 0
-
-    # Reserve is unused capacity
-
-    # Reserve_unitilised_reserve = P_nom/opt - p0
-
-    # check if the link is synced e.g. p0 > 0
-    # if p0 > 0 then Synced
-    #    Only contribute to reserves if you are online and can contribute to reserves (Syncronised Reserves)
-
-    # if p0 = 0 not Synced
-    #    Build but not in use (Non syncronised reserves)
-
     # Scheduled extendable variable
     # only extendable links is added
     # Meet a reserve level in a area (extendable and non extandable ) total needs to meet the given reserve requirement
@@ -648,7 +634,11 @@ def add_all_reserve_constraints(
     print("\n\nadd_all_reserve_constraints")
     print("===============================")
     # get all the network reserve areas defined in links.csv
-    reserve_areas = network.links["reserve_area"].dropna().unique()
+    reserve_areas = network.links["reserve_area"].dropna()
+    reserve_areas = reserve_areas[reserve_areas != 0]
+    reserve_areas = reserve_areas[reserve_areas != "0"]
+    reserve_areas = reserve_areas.unique()
+
     if reserve_areas == [0]:
         reserve_areas = []
 

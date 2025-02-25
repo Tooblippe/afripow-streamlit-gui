@@ -212,7 +212,7 @@ def add_all_reserve_constraints(
 
     # add constraints found
     for reserve_level in reserve_levels:
-        for reserve_area in reserve_areas:
+        for reserve_area in sorted(reserve_areas):
             reserve_level_reserve_area = f"{reserve_level}_{reserve_area}"
             area_link_list = area_to_links_lookup[reserve_area]
 
@@ -220,7 +220,9 @@ def add_all_reserve_constraints(
                 reserve_capacity_needed = reserves.at[
                     reserve_level_reserve_area, "value_mw"
                 ]
-                constraint_name = f"Reserve_Constraint_{reserve_level_reserve_area}_{reserve_capacity_needed}"
+                constraint_name = (
+                    f"-{reserve_level_reserve_area}_{reserve_capacity_needed}"
+                )
                 print(
                     f"Adding: {constraint_name}-{area_link_list} >= {reserve_capacity_needed}\n\n"
                 )

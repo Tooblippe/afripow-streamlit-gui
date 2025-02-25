@@ -271,7 +271,7 @@ def make_extendable(network: pypsa.Network):
 def increase_load_fixed(n: pypsa.Network, inputs_folder_name):
     print("\nRunning increase_load_fixed")
     print("=======================")
-    inc_load_df = pd.read_csv(inputs_folder_name + "\inc_load.csv")
+    inc_load_df = pd.read_csv(inputs_folder_name + r"\inc_load.csv")
     for i, load in enumerate(inc_load_df.itertuples(index=False)):
         print(f"Adding to load {load.inc_load} + {load.value_mw} MW")
         load_name = load.inc_load
@@ -340,7 +340,8 @@ def fix_n_minus_capacities(
             path_to_networks, current_year, previous_year
         )
         previous_network_loaded = True
-    except AssertionError:
+
+    except (AssertionError, FileNotFoundError):
         print(
             f"\n\nNOTE:\nThere does not seem to be a network for year={previous_year} at {path_to_networks}\n\n"
         )
